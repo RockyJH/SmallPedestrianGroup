@@ -2,7 +2,7 @@ import torch
 
 
 class FullState(object):
-    def __init__(self, px, py, vx, vy, radius, gx, gy, v_pref, theta):
+    def __init__(self, px, py, vx, vy, radius, gx, gy, v_pref):
         self.px = px
         self.py = py
         self.vx = vx
@@ -11,7 +11,6 @@ class FullState(object):
         self.gx = gx
         self.gy = gy
         self.v_pref = v_pref
-        self.theta = theta
 
         self.position = (self.px, self.py)
         self.goal_position = (self.gx, self.gy)
@@ -19,20 +18,21 @@ class FullState(object):
 
     # 添加
     def __add__(self, other):
-        return other + (self.px, self.py, self.vx, self.vy, self.radius, self.gx, self.gy, self.v_pref, self.theta)
+        return other + (self.px, self.py, self.vx, self.vy, self.radius, self.gx, self.gy, self.v_pref)
 
-    # 类似与Java 的 toString()方法 放回String
+    # toString
     def __str__(self):
         return ' '.join([str(x) for x in [self.px, self.py, self.vx, self.vy, self.radius, self.gx, self.gy,
-                                          self.v_pref, self.theta]])
+                                          self.v_pref]])
 
-    # 变成元组 返回是元组
+    # 元组不可变
     def to_tuple(self):
-        return self.px, self.py, self.vx, self.vy, self.radius, self.gx, self.gy, self.v_pref, self.theta
+        return self.px, self.py, self.vx, self.vy, self.radius, self.gx, self.gy, self.v_pref
 
     # 获取可观测状态， agent 类里 也有，state 类里也有
     def get_observable_state(self):
         return ObservableState(self.px, self.py, self.vx, self.vy, self.radius)
+
 
 # 可观测状态
 class ObservableState(object):
@@ -55,15 +55,16 @@ class ObservableState(object):
     def to_tuple(self):
         return self.px, self.py, self.vx, self.vy, self.radius
 
+
 # 联合状态
 class JointState(object):
-    def __init__(self, robot_state, human_states):
-        assert isinstance(robot_state, FullState)  # 要保证是robot的全部状态
-        for human_state in human_states:
-            assert isinstance(human_state, ObservableState) # 断言 human的状态是可观测状态
+    def __init__(self, group_state, agents_states):
+        assert isinstance(group_state, FullState)  # 要保证是robot的全部状态
+        for agent_state in agents_states:
+            assert isinstance(agent_state, ObservableState)  # 断言 human的状态是可观测状态
 
-        self.robot_state = robot_state
-        self.human_states = human_states
+        self.group_state = group_state
+        self.agents_states = agents_states
 
     # to_tensor 返回 tensor 形式的状态
     def to_tensor(self, add_batch_size=False, device=None):
@@ -80,11 +81,12 @@ class JointState(object):
 
         return robot_state_tensor, human_states_tensor
 
+
 # 将tensor形式的state 转换成joint state
 def tensor_to_joint_state(state):
     robot_state, human_states = state
 
-    robot_state = robot_state.squeeze().data.numpy() # 变成numpy形式
+    robot_state = robot_state.squeeze().data.numpy()  # 变成numpy形式
     robot_state = FullState(robot_state[0], robot_state[1], robot_state[2], robot_state[3], robot_state[4],
                             robot_state[5], robot_state[6], robot_state[7], robot_state[8])
     human_states = human_states.squeeze(0).data.numpy()

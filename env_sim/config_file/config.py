@@ -1,14 +1,11 @@
-"""
+import numpy as np
+'''
 Never Modify this file! Always copy the settings you want to change to your local file.
-"""
-"""
 config 是一个对象 该模块包含了三个子类
 BaseEnvConfig
 BasePolicyConfig
 BaseTrainConfig
-"""
-
-import numpy as np
+'''
 
 
 class Config(object):
@@ -26,34 +23,30 @@ class BaseEnvConfig(object):
     env.randomize_attributes = False
     env.robot_sensor_range = 5
 
-    reward = Config()
-    reward.success_reward = 1
-    reward.collision_penalty = -0.25
-    reward.discomfort_dist = 0.2
-    reward.discomfort_penalty_factor = 0.5
-
     sim = Config()
     sim.train_val_scenario = 'circle_crossing'
     sim.test_scenario = 'circle_crossing'
-    sim.square_width = 20 # 20
+    sim.square_width = 20  # 20
     sim.circle_radius = 4
     sim.human_num = 5
     sim.nonstop_human = False
     sim.centralized_planning = True
 
-    humans = Config()
-    humans.visible = True
-    humans.policy = 'orca'
-    humans.radius = 0.3
-    humans.v_pref = 1
-    humans.sensor = 'coordinates'
+    agent = Config()
+    agent.visible = True
+    agent.policy = 'orca'
+    agent.radius = 0.3
+    agent.v_pref = 1
+    agent.sensor = 'coordinates'
 
-    robot = Config()
-    robot.visible = True
-    robot.policy = 'none'
-    robot.radius = 0.3
-    robot.v_pref = 1
-    robot.sensor = 'coordinates'
+    group = Config()
+    group.agent_radius = agent.radius
+
+    reward = Config()
+    reward.success_reward = 1
+    reward.collision_penalty = -0.25
+    reward.discomfort_dist = 0.2
+    reward.discomfort_penalty_factor = 0.5
 
     def __init__(self, debug=False):
         if debug:
@@ -136,7 +129,7 @@ class BaseTrainConfig(object):
     trainer.optimizer = 'Adam'
 
     imitation_learning = Config()
-    imitation_learning.il_episodes = 2000    # 模仿学习2000个步骤，50个回合，使用orca，学习率 0.001,
+    imitation_learning.il_episodes = 2000  # 模仿学习2000个步骤，50个回合，使用orca，学习率 0.001,
     imitation_learning.il_policy = 'orca'
     imitation_learning.il_epochs = 50
     imitation_learning.il_learning_rate = 0.001
@@ -148,7 +141,7 @@ class BaseTrainConfig(object):
     # number of batches to train at the end of training episode il_episodes
     train.train_batches = 100
     # training episodes in outer loop
-    train.train_episodes = 10000   ## 训练10000步
+    train.train_episodes = 10000  ## 训练10000步
     # number of episodes sampled in one training episode
     train.sample_episodes = 1
     train.target_update_interval = 1000

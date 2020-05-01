@@ -2,23 +2,20 @@ import logging  # 日志模块
 import random  # 有random() 方法  返回随机生成的一个实数，它在[0,1)范围内。
 import math  # 数学函数，一般是对c库中同名函数的简单封装
 
-import gym  # gym
+import gym
 import matplotlib.lines as mlines  # 基本绘图
 from matplotlib import patches  # 绘制图形
-import numpy as np  # 老朋友 numpy
-from numpy.linalg import norm  # 线性代数
-
-from env_sim.envs.policy.policy_factory import policy_factory  # key-value键值对
+import numpy as np
+from numpy.linalg import norm
+from env_sim.envs.utils.agent import Agent
 from env_sim.envs.utils.state import tensor_to_joint_state, JointState  # 状态
-from env_sim.envs.utils.action import ActionRot  # 只导入了角度描述的动作还没有用到
-from env_sim.envs.utils.human import Human
-from env_sim.envs.utils.info import *  # 碰撞、不舒服等信息
-from env_sim.envs.utils.utils import point_to_segment_dist  # 点到直线的距离
+from env_sim.envs.utils.info import *
+from env_sim.envs.utils.utils import point_to_segment_dist
+from env_sim.envs.policy.orca import CentralizedORCA
 
-# 这个模块是环境总模块 调用了其他基础类
 '''
-对 n+1 个agent的动作仿真 其中human 被一个确定动作策略控制，
-robot由一个可训练的策略控制
+当前环境中包含一个group和若干个agent，group，对group的控制策略输入状态，返回一个formation，
+以此获得组内每个agent的期望速度和目的地，然后step,对所有agent用用CentralizedORCA向下执行一步。因为只需要局部避障
 '''
 
 
@@ -26,42 +23,39 @@ class EnvSim(gym.Env):
 
     def __init__(self):
 
-        self.time_limit = 30
-        self.time_step = 0.25
-        self.robot = None
-        self.humans = None
+        self.group_actions = None
+        self.time_limit = None
+        self.time_step = None
+        self.group = None
+        self.out_group_agents = None
+        self.group_members = None
+        self.out_group_agents_num = None
         self.global_time = None
-        self.robot_sensor_range = 5
+        self.robot_sensor_range = None
 
         # reward function
-        self.success_reward = 1
-        self.collision_penalty = -0.25
-        self.discomfort_dist = 0.2
-        self.discomfort_penalty_factor = 0.5
+        self.success_reward = None
+        self.collision_penalty = None
+        self.discomfort_dist = None
+        self.discomfort_penalty_factor = None
+        self.formation_value = None
 
         # simulation configuration
         self.config = None
-        # self.case_capacity = {'train': np.iinfo(np.uint32).max - 2000, 'val': 1000, 'test': 1000}
-        # self.case_size = {'train': np.iinfo(np.uint32).max - 2000, 'val': 100, 'test': 500}
-        # self.case_counter = {'train': 0, 'test': 0, 'val': 0}  # 训练，测试，验证？
-        self.randomize_attributes = True  # 随机人的人的位置和速度 # 用后即改为true
-        self.train_val_scenario = 'circle_crossing'
-        self.test_scenario = 'circle_crossing'
-        # self.test_scenario = 'crossingStreat'
+        self.randomize_attributes = None
+        self.train_val_scenario = None
+        self.test_scenario = None
         self.current_scenario = None
-        self.square_width = 20
-        self.circle_radius = 4
-        self.human_num = 5
-        self.nonstop_human = False
-        self.centralized_planning = False
-        self.centralized_planner = None
+        self.square_width = None
+        self.circle_radius = None
+        self.nonstop_human = None
 
-        # for visualization
+        #
         self.states = None
         self.action_values = None
-        self.attention_weights = None
         self.robot_actions = None
         self.rewards = None
+
         self.As = None  # Axes图表
         self.Xs = None
         self.feats = None
@@ -73,281 +67,163 @@ class EnvSim(gym.Env):
         self.dynamic_human_num = []
         self.human_starts = []
         self.human_goals = []
-
         self.phase = None
+        self.centralized_planner = CentralizedORCA
+        self.agent_radius = 0.3
 
-        ## 只是为了测试
-        self.numcount = 0
-        self.dis = 1.2
-
-    # 将初始化的工作全部放到__init__做完，configure不需要参数。
     def configure(self, config):
 
         self.config = config  # 后面用来为配置human
 
-        # human_policy = 'orca'
-        if self.centralized_planning:
-            self.centralized_planner = policy_factory['centralized_orca']()
-        # human 采用 中心化的规划 使用centralized_ORCA
-
-        logging.info('human number: {}'.format(self.human_num))
+        logging.info('agent number: {}'.format(self.human_num))
         if self.randomize_attributes:
-            logging.info("Randomize human's radius and preferred speed")
+            logging.info("Randomize human's preferred speed")
         else:
             logging.info("Not randomize human's radius and preferred speed")
         logging.info('Training simulation: {}, test simulation: {}'.format(self.train_val_scenario, self.test_scenario))
         logging.info('Square width: {}, circle width: {}'.format(self.square_width, self.circle_radius))
 
-    # 机器人入场
-    def set_robot(self, robot):
-        self.robot = robot
+    def set_group(self, group):
+        self.group = group
 
-    # ----------------------------------------------
-
-    # 按照circle_Crossing 圈圈 生成 human 实例 返回一个human实例
-    # 生成human 只是站在robot的角度来生成的，因此humna 不包含目的位置信息
-    def generate_human(self, human=None):
-        if human is None:
-            human = Human(self.config, 'humans')  # def __init__(self, config, section):
+    # 生成其他Agent
+    def generate_agent(self):
+        agent = Agent(self.config, 'agent')
         if self.randomize_attributes:
-            human.sample_random_attributes()
+            agent.sample_random_attributes()
 
-        # 两种场景生成human的方式不尽相同 circle_crossing 和 square_crossing
         if self.current_scenario == 'circle_crossing':
-            while True:
-                angle = np.random.random() * np.pi * 2  # 相当于在2pi中随即取角度
-                # add some noise to simulate all the possible cases robot could meet with human
-                # 为坐标添加噪声
-                px_noise = (np.random.random() - 0.5) * human.v_pref
-                py_noise = (np.random.random() - 0.5) * human.v_pref
+            while True:  # 一直循环直到成功的生成一个agent实例
+                angle = np.random.random() * 2 * np.pi  # 在2pi中随机取角度
+                # add some noise
+                px_noise = (np.random.random() - 0.5) * agent.v_pref
+                py_noise = (np.random.random() - 0.5) * agent.v_pref
                 px = self.circle_radius * np.cos(angle) + px_noise
                 py = self.circle_radius * np.sin(angle) + py_noise
                 collide = False
-                # 避免随即出来的位置会直接碰撞
-                # 当和其它agent的位置碰撞或和其他agent的目标位置碰撞都算碰撞，从新采样
-                ###########################生成human时的一次检测碰撞#########################
-                for agent in [self.robot] + self.humans:
-                    min_dist = human.radius + self.discomfort_dist + agent.radius
-                    if norm((px - agent.px, py - agent.py)) < min_dist or \
-                            norm((px - agent.gx, py - agent.gy)) < min_dist:
+                # collide testing
+                for other_agent in self.all_agents:
+                    min_dist = agent.radius + other_agent.radius
+                    if norm((px - other_agent.px, py - other_agent.py)) < min_dist or \
+                            norm((px - other_agent.gx, py - other_agent.gy)) < min_dist:
                         collide = True
                         break
                 if not collide:
                     break
-            human.set(px, py, -px, -py, 0, 0, 0)  # 后三个是角度、半径、期望速度
+            agent.set(px, py, -px, -py, 0, 0, 0)  # 后三个是、半径、期望速度
+            self.out_group_agents.append(agent)
 
-        elif self.current_scenario == 'square_crossing':
-            if np.random.random() > 0.5:
-                sign = -1
-            else:
-                sign = 1
-            while True:
-                px = np.random.random() * self.square_width * 0.5 * sign
-                py = (np.random.random() - 0.5) * self.square_width
-                collide = False
-                for agent in [self.robot] + self.humans:
-                    if norm((px - agent.px, py - agent.py)) < human.radius + agent.radius + self.discomfort_dist:
-                        collide = True
-                        break
-                if not collide:
-                    break
-            while True:
-                gx = np.random.random() * self.square_width * 0.5 * - sign
-                gy = (np.random.random() - 0.5) * self.square_width
-                collide = False
-                for agent in [self.robot] + self.humans:
-                    if norm((gx - agent.gx, gy - agent.gy)) < human.radius + agent.radius + self.discomfort_dist:
-                        collide = True
-                        break
-                if not collide:
-                    break
-            human.set(px, py, gx, gy, 0, 0, 0)
-        # elif self.current_scenario == 'crossingStreat':
-        #     if self.numcount == 0:
-        #         px = -7
-        #         py = -self.dis
-        #         gx = -px+1
-        #         gy = py
-        #     elif self.numcount == 1:
-        #         px = -7
-        #         py = 0
-        #         gx = -px + 1
-        #         gy = py
-        #     elif self.numcount == 2:
-        #         px = -7
-        #         py = self.dis
-        #         gx = -px + 1
-        #         gy = py
-        #     elif self.numcount == 3:
-        #         px = -self.dis
-        #         py = 8
-        #         gx = px
-        #         gy = -py-1
-        #     elif self.numcount == 4:
-        #         px = 0
-        #         py = 8
-        #         gx = px
-        #         gy = -py - 1
-        #     elif self.numcount == 5:
-        #         px = self.dis
-        #         py = 8
-        #         gx = px
-        #         gy = -py - 1
-        #     elif self.numcount == 6:
-        #         px = 7
-        #         py = self.dis
-        #         gx = -px-1
-        #         gy = py
-        #     elif self.numcount == 7:
-        #         px = 7
-        #         py = 0
-        #         gx = -px-1
-        #         gy = py
-        #     elif self.numcount == 8:
-        #         px = 7
-        #         py = -self.dis
-        #         gx = -px - 1
-        #         gy = py
-        #     elif self.numcount == 9:
-        #         px = self.dis
-        #         py = -7
-        #         gx = px
-        #         gy = -py
-        #     elif self.numcount == 10:
-        #         px = -self.dis
-        #         py = -7
-        #         gx = px
-        #         gy = -py
-        # self.numcount = self.numcount + 1
-        # human.set(px, py, gx, gy, 0, 0, 0)
+        return agent
 
-        return human
-
+    # 回到初始位置并返回ob
     def reset(self):
-        """
-        Set px, py, gx, gy, vx, vy, theta for robot and humans
-        :return: ob
-        """
-        if self.robot is None:  # 重置之前 必须确保robot已经设置好
-            raise AttributeError('Robot has to be set!')
-
         self.global_time = 0  # 全局时间置零
-        self.robot.set(0, -self.circle_radius, 0, self.circle_radius, 0, 0, np.pi / 2)
+        self.group.set(0, -self.circle_radius, 0, self.circle_radius, 0, 0)
+        # 此时会同时在环境中生成 group_members，将其添加到all_agents
+        self.group_members = self.group.get_group_members()
 
         self.current_scenario = self.test_scenario
-        human_num = self.human_num
-        self.humans = []
-        for _ in range(human_num):
-            self.humans.append(self.generate_human())
+        other_agent_num = self.out_group_agents_num
+        for _ in range(other_agent_num):
+            self.generate_agent()
 
-            # # case_counter is always between 0 and case_size[phase]
-            # self.case_counter[phase] = (self.case_counter[phase] + 1) % self.case_size[phase]
-        # else:
-        #     assert phase == 'test'
-        #     if self.case_counter[phase] == -1:
-        #         # for debugging purposes
-        #         self.human_num = 3
-        #         self.humans = [Human(self.config, 'humans') for _ in range(self.human_num)]
-        #         self.humans[0].set(0, -6, 0, 5, 0, 0, np.pi / 2)
-        #         self.humans[1].set(-5, -5, -5, 5, 0, 0, np.pi / 2)
-        #         self.humans[2].set(5, -5, 5, 5, 0, 0, np.pi / 2)
-        #     else:
-        #         raise NotImplementedError
-        for agent in [self.robot] + self.humans:
+        # 让所有地方的agent同步起来
+        for agent in self.group_members + self.out_group_agents:
             agent.time_step = self.time_step
             agent.policy.time_step = self.time_step
 
-        if self.centralized_planning:
-            self.centralized_planner.time_step = self.time_step
-
         self.states = list()
-        self.robot_actions = list()
         self.rewards = list()
-        # if hasattr(self.robot.policy, 'action_values'):
-        #     self.action_values = list()
-        # if hasattr(self.robot.policy, 'get_attention_weights'):
-        #     self.attention_weights = list()
-        # if hasattr(self.robot.policy, 'get_matrix_A'):
-        #     self.As = list()
-        # if hasattr(self.robot.policy, 'get_feat'):
-        #     self.feats = list()
-        # if hasattr(self.robot.policy, 'get_X'):
-        #     self.Xs = list()
-        # if hasattr(self.robot.policy, 'trajs'):
-        #     self.trajs = list()
+        self.group_actions = list()
 
         # get current observation
-        if self.robot.sensor == 'coordinates':
-            ob = self.compute_observation_for(self.robot)
-        elif self.robot.sensor == 'RGB':
-            raise NotImplementedError
+        ob = self.compute_observation_for(self.group)
 
-        return ob
+        return ob  # group观察到的ob.
 
-    def onestep_lookahead(self, action):
+    def one_step_lookahead(self, action):
         return self.step(action, update=False)
 
-    def step(self, action, update=True):  # action是机器人的action
-        """
-        为所有agent执行一步动作，返回观察、reward，done，info
-        Compute actions for all agents, detect collision, update environment and return (ob, reward, done, info)
-        """
-        '''第一步计算 所有humna的动作'''
-        if self.centralized_planning:
-            agent_states = [human.get_full_state() for human in self.humans]  # agent_states 是全局的信息
-            if self.robot.visible:
-                agent_states.append(self.robot.get_full_state())
-                human_actions = self.centralized_planner.predict(agent_states)[:-1]
-                # 就是除去最后一行不要，最后一行是机器人的状态
-            else:
-                human_actions = self.centralized_planner.predict(agent_states)
-        else:
-            human_actions = []
-            for human in self.humans:
-                ob = self.compute_observation_for(human)  # 计算所有human的
-                human_actions.append(human.act(ob))
+    # return ob, reward, done, info
+    def step(self, action, update=True):  # action 是group的action
+        # 为所有agent计算出一步动作，然后碰撞检查，更新环境，返回(ob, reward, done, info)
 
-        '''collision detection 第二步 碰撞检测'''
+        # 先处理group_members,主要是set_goal(self, gx, gy)
+        # 速度不用设置，但是执行完环境更新应该更新group_members的速度
+
+        g_vx, g_vy = action[0]
+        formation = action[1]
+        p = formation.get_ref_point()
+        p = p[0] + g_vx * self.time_step, p[1] * g_vy * self.time_step
+        relation = formation.get_relation()  # [[a,b],[a,b],[a,b]]
+        vn, vc = formation.get_vn_vc()  # vn = (x,y) vc = (x,y)
+
+        # 获取新的位置,np_array的形式
+        new_p1 = np.array(p) + relation[0][0] * np.array(vn) + relation[0][1] * np.array(vc)
+        new_p2 = np.array(p) + relation[1][0] * np.array(vn) + relation[1][1] * np.array(vc)
+        new_p3 = np.array(p) + relation[2][0] * np.array(vn) + relation[2][1] * np.array(vc)
+        new_p_array = [new_p1, new_p2, new_p3]  # list里面是数组类型的新位置
+
+        # 一对一地分配谁去哪里
+
+        old_p1 = np.array(self.group_members[0].get_position())
+        old_p2 = np.array(self.group_members[1].get_position())
+        old_p3 = np.array(self.group_members[2].get_position())
+
+        old_p_arr = [old_p1, old_p2, old_p3]
+
+        all_premutations = [[1, 2, 3], [1, 3, 2],
+                            [2, 1, 3], [2, 3, 2],
+                            [3, 1, 2], [3, 2, 1]]
+        min_dis_index = 0
+        min_dis = float('inf')
+
+        for i, premutation in enumerate(all_premutations):
+            dis = np.linalg.norm(new_p_array[premutation[0]] - old_p_arr[0] +
+                                 new_p_array[premutation[1]] - old_p_arr[1] +
+                                 new_p_array[premutation[2]] - old_p_arr[2])
+            if dis < min_dis:
+                min_dis = dis
+                min_dis_index = i
+
+        final_premutation = all_premutations[min_dis_index]
+        self.group_members[0].set_goal(new_p_array[final_premutation[0]][0], new_p_array[final_premutation[0]][1])
+        self.group_members[1].set_goal(new_p_array[final_premutation[1]][0], new_p_array[final_premutation[1]][1])
+        self.group_members[2].set_goal(new_p_array[final_premutation[2]][0], new_p_array[final_premutation[2]][1])
+
+        # 所有agents的动作
+        agent_states = [agent.get_full_state() for agent in self.group_members + self.out_group_agents]
+        agent_actions = self.centralized_planner.predict(agent_states)[:-1]
+
         dmin = float('inf')  # dmin 最小距离 初始值正无穷大
         collision = False
-        # 先检测每个人和robot是否碰撞
-        for i, human in enumerate(self.humans):  # 对每一个human
-            px = human.px - self.robot.px
-            py = human.py - self.robot.py
-            if self.robot.kinematics == 'holonomic':
-                vx = human.vx - action.vx
-                vy = human.vy - action.vy
-            else:
-                vx = human.vx - action.v * np.cos(action.r + self.robot.theta)
-                vy = human.vy - action.v * np.sin(action.r + self.robot.theta)
-            ex = px + vx * self.time_step
-            ey = py + vy * self.time_step
-            # human 和robot之间的最近距离
-            closest_dist = point_to_segment_dist(px, py, ex, ey, 0, 0) - human.radius - self.robot.radius
-            if closest_dist < 0:
-                collision = True
-                logging.info(
-                    "Collision: distance between robot and p{} is {:.2E} at time {:.2E}".format(human.id, closest_dist,
-                                                                                                self.global_time))
-                break
-            elif closest_dist < dmin:
-                dmin = closest_dist  # 更新最小距离
-
-        # collision detection between humans
-        # human 之间的碰撞检测
-        human_num = len(self.humans)
-        for i in range(human_num):
-            for j in range(i + 1, human_num):
-                dx = self.humans[i].px - self.humans[j].px
-                dy = self.humans[i].py - self.humans[j].py
-                dist = (dx ** 2 + dy ** 2) ** (1 / 2) - self.humans[i].radius - self.humans[j].radius
-                if dist < 0:  # human之间发生碰撞但是忽略不计 只是打印出日志
-                    # detect collision but don't take humans' collision into account
-                    logging.debug('Collision happens between humans in step()')
+        # 检测每个group_member和组外agent是否碰撞，组外agent之间互碰不管
+        for j, member in enumerate(self.group_members):
+            member_action = agent_actions[j]
+            for i, agent in enumerate(self.out_group_agents):
+                px = agent.px - member.px
+                py = agent.py - member.py
+                vx = agent.vx - member_action.vx
+                vy = agent.vy - member_action.vy
+                ex = px + vx * self.time_step
+                ey = py + vy * self.time_step
+                # member 和 组外agent之间的最近距离
+                closest_dist = point_to_segment_dist(px, py, ex, ey, 0, 0) - agent.radius
+                if closest_dist < 0:
+                    collision = True
+                    logging.info(
+                        "Collision happend at time {:.2E}".format(self.global_time))
+                    break
 
         # check if reaching the goal
-        end_position = np.array(self.robot.compute_position(action, self.time_step))  # 执行完这一步的位置
-        reaching_goal = norm(end_position - np.array(self.robot.get_goal_position())) < self.robot.radius
+        # 让所有group_member执行动作，来更新group
+        for i, member in self.group_members:
+            member.step(agent_actions[i])
+
+        self.group.update()
+
+        end_position = np.array((self.group.px, self.group.py))  # 执行完这一步的位置
+        reaching_goal = norm(end_position - np.array(self.group.get_goal_position())) < 3 * self.agent_radius
 
         if self.global_time >= self.time_limit - 1:  # 在限制时间内到不了就拉到
             reward = 0
@@ -361,39 +237,18 @@ class EnvSim(gym.Env):
             reward = self.success_reward
             done = True
             info = ReachGoal()
-        elif dmin < self.discomfort_dist:  # 最小距离太小了就按比例给相应的惩罚
-            # adjust the reward based on FPS
-            reward = (dmin - self.discomfort_dist) * self.discomfort_penalty_factor * self.time_step
-            done = False
-            info = Discomfort(dmin)
         else:  # 其他就不奖不罚
             reward = 0
             done = False
             info = Nothing()
+        # formation_reward
 
-        if update:  # pudate = true
-            # store state, action value and attention weights
-            # 基本思想是将当前动作，回报等等信息存储起来，还有其他值，如果有的话
-            # if hasattr(self.robot.policy, 'action_values'):
-            #     self.action_values.append(self.robot.policy.action_values)
-            # if hasattr(self.robot.policy, 'get_attention_weights'):
-            #     self.attention_weights.append(self.robot.policy.get_attention_weights())
-            # if hasattr(self.robot.policy, 'get_matrix_A'):
-            #     self.As.append(self.robot.policy.get_matrix_A())
-            # if hasattr(self.robot.policy, 'get_feat'):
-            #     self.feats.append(self.robot.policy.get_feat())
-            # if hasattr(self.robot.policy, 'get_X'):
-            #     self.Xs.append(self.robot.policy.get_X())
-            # if hasattr(self.robot.policy, 'traj'):
-            #     self.trajs.append(self.robot.policy.get_traj())
-
+        if update:
             # update all agents
-            # 这里的step 是agent的方法， 到达下一个状态
-            self.robot.step(action)
-            for human, action in zip(self.humans, human_actions):
-                human.step(action)
-                if self.nonstop_human and human.reached_destination():
-                    self.generate_human(human)
+            for agent, action in zip(self.out_group_agents, agent_actions[3:]):
+                agent.step(action)
+                # if self.nonstop_human and human.reached_destination():
+                #     self.generate_human(human)
 
             self.global_time += self.time_step  # 到达姆目标时间
             self.states.append([self.robot.get_full_state(), [human.get_full_state() for human in self.humans],
@@ -402,37 +257,25 @@ class EnvSim(gym.Env):
             self.rewards.append(reward)
 
             # compute the observation
-            if self.robot.sensor == 'coordinates':
-                ob = self.compute_observation_for(self.robot)
-            elif self.robot.sensor == 'RGB':
-                raise NotImplementedError
-        else:
-            if self.robot.sensor == 'coordinates':
-                ob = [human.get_next_observable_state(action) for human, action in zip(self.humans, human_actions)]
-            elif self.robot.sensor == 'RGB':
-                raise NotImplementedError
+            ob = self.compute_observation_for(self.group)
 
         return ob, reward, done, info
 
-    def compute_observation_for(self, agent):  # 计算 当前agent所观察到的状态
-        if agent == self.robot:
-            ob = []
-            for human in self.humans:
-                ob.append(human.get_observable_state())
-        else:
-            ob = [other_human.get_observable_state() for other_human in self.humans if other_human != agent]
-            if self.robot.visible:
-                ob += [self.robot.get_observable_state()]
+    def compute_observation_for(self, group):  # 计算 当前agent所观察到的状态
+        ob = []
+        for agent in self.out_group_agents:
+            ob.append(agent.get_observable_state())
         return ob
 
-    # 渲染函数
-    def render(self, mode='human', output_file=None):  # video
+    # 渲染函数，测试的时候mode使用的是video
+    def render(self, mode=None, output_file=None):
+
         from matplotlib import animation  # 画动态图
         import matplotlib.pyplot as plt
-        # plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+
         x_offset = 0.2
         y_offset = 0.4
-        cmap = plt.cm.get_cmap('hsv', 10)
+        cmap = plt.cm.get_cmap('hsv', 10)  # color map
         robot_color = 'black'
         arrow_style = patches.ArrowStyle("->", head_length=4, head_width=2)  # 箭头的长度和宽度
         display_numbers = True  # 展示数字
@@ -552,11 +395,6 @@ class EnvSim(gym.Env):
             ax.add_artist(time)
             step = plt.text(0.1, 0.9, 'Step: {}'.format(0), fontsize=16, transform=ax.transAxes)
             ax.add_artist(step)
-            # visualize attention scores
-            # if hasattr(self.robot.policy, 'get_attention_weights'):
-            #     attention_scores = [
-            #         plt.text(-5.5, 5 - 0.5 * i, 'Human {}: {:.2f}'.format(i + 1, self.attention_weights[0][i]),
-            #                  fontsize=16) for i in range(len(self.humans))]
 
             # 计算朝向，使用箭头显示方向 compute orientation in each step and use arrow to show the direction
             radius = self.robot.radius
@@ -574,7 +412,7 @@ class EnvSim(gym.Env):
                         direction = ((agent_state.px, agent_state.py), (agent_state.px + radius * np.cos(theta),
                                                                         agent_state.py + radius * np.sin(theta)))
                     orientation.append(direction)
-                orientations.append(orientation) # 计算箭头的方向，也是human的朝向
+                orientations.append(orientation)  # 计算箭头的方向，也是human的朝向
                 if i == 0:
                     arrow_color = 'black'
                     arrows = [patches.FancyArrowPatch(*orientation[0], color=arrow_color, arrowstyle=arrow_style)]
@@ -604,7 +442,7 @@ class EnvSim(gym.Env):
                         circles.append(circle)
                     human_future_circles.append(circles)
 
-            def update(frame_num): # frame_num 是帧数
+            def update(frame_num):  # frame_num 是帧数
                 nonlocal global_step
                 nonlocal arrows
                 global_step = frame_num
@@ -700,7 +538,7 @@ class EnvSim(gym.Env):
                         # if hasattr(self.robot.policy, 'action_values'):
                         #    plot_value_heatmap()
                     if event.key == 'n':
-                        print('you pressd the : ',event.key,' key')
+                        print('you pressd the : ', event.key, ' key')
                 else:
                     anim.event_source.start()
                 anim.running ^= True
@@ -710,14 +548,20 @@ class EnvSim(gym.Env):
             anim.running = True
 
             '''
-            1、函数FuncAnimation(fig,func,frames,init_func,interval,blit)是绘制动图的主要函数，其参数如下：
-　　          a.fig 绘制动图的画布名称
+        1、函数FuncAnimation(fig, func, frames, init_func, interval, blit)
+        是绘制动图的主要函数，其参数如下：
+
+　　          a.fig
+绘制动图的画布名称
 　　          b.func自定义动画函数，即下边程序定义的函数update
-　　          c.frames动画长度，一次循环包含的帧数，在函数运行时，其值会传递给函数update(n)的形参“n”
-　　          d.init_func自定义开始帧，即传入刚定义的函数init,初始化函数
+　　          c.frames动画长度，一次循环包含的帧数，在函数运行时，其值会传递给函数update(n)
+的形参“n”
+　　          d.init_func自定义开始帧，即传入刚定义的函数init, 初始化函数
 　　          e.interval更新频率，以ms计
 　　          f.blit选择更新所有点，还是仅更新产生变化的点。应选择True，但mac用户请选择False，否则无法显
-            '''
+'''
+
+
             if output_file is not None:
                 # save as video
                 ffmpeg_writer = animation.FFMpegWriter(fps=10, metadata=dict(artist='Me'), bitrate=1800)
@@ -729,7 +573,6 @@ class EnvSim(gym.Env):
             else:
                 anim.save("env_sim/hello.gif", writer='imagemagic', fps=12)
                 plt.show()
-
 
         else:
             raise NotImplementedError

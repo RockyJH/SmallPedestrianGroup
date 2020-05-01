@@ -1,4 +1,4 @@
-import abc      # abstract base class 抽象基类
+import abc  # abstract base class 抽象基类
 import numpy as np
 import torch
 
@@ -7,6 +7,8 @@ import torch
 输入一个state 输出一个action，
 ORCA: ORCA
 '''
+
+
 class Policy(object):
     def __init__(self):
         self.trainable = False
@@ -38,7 +40,7 @@ class Policy(object):
         return self.model
 
     def save_model(self, file):
-        torch.save(self.model.state_dict(), file)   # only save the parameters
+        torch.save(self.model.state_dict(), file)  # only save the parameters
 
     def load_model(self, file):
         self.model.load_state_dict(torch.load(file))
@@ -50,16 +52,8 @@ class Policy(object):
         self.model.load_state_dict(state_dict)
 
     @abc.abstractmethod
-    def predict(self, state):
+    def predict(self, state, action_space, members):
         """
         Policy takes state as input and output an action
         """
         return
-
-    @staticmethod
-    def reach_destination(state):
-        robot_state = state.robot_state
-        if np.linalg.norm((robot_state.py - robot_state.gy, robot_state.px - robot_state.gx)) < robot_state.radius:
-            return True
-        else:
-            return False
