@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="459ead2e-bf8e-4502-95d3-3675cd22b607" name="Default Changelist" comment="" />
+    <list default="true" id="459ead2e-bf8e-4502-95d3-3675cd22b607" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="SmallPedestrianGroup" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -14,7 +20,20 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="hiddenUrls">
+      <set>
+        <option value="git@github.com:TieQinRui/SmallPedestrianGroup.git" />
+      </set>
+    </option>
+  </component>
   <component name="ProjectId" id="1W7KRkLnuzD7GVUgqVZlSju7WA6" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -22,9 +41,10 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../RelationalGraphLearning" />
-    <property name="settings.editor.selected.configurable" value="settings.github" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -37,53 +57,7 @@
       <recent name="$PROJECT_DIR$/env_sim" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration default="true" type="DjangoTestsConfigurationType">
-      <module name="SmallPedestrianGroup" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="TARGET" value="" />
-      <option name="SETTINGS_FILE" value="" />
-      <option name="CUSTOM_SETTINGS" value="false" />
-      <option name="USE_OPTIONS" value="false" />
-      <option name="OPTIONS" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="PyBehaveRunConfigurationType" factoryName="Behave">
-      <module name="SmallPedestrianGroup" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="ADDITIONAL_ARGS" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="PyLettuceRunConfigurationType" factoryName="Lettuce">
-      <module name="SmallPedestrianGroup" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="ADDITIONAL_ARGS" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.test">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="SmallPedestrianGroup" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -98,6 +72,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="formation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SmallPedestrianGroup" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/env_sim/envs/utils" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/env_sim/envs/utils/formation.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -128,68 +124,33 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration default="true" type="Python.FlaskServer">
+    <configuration name="test1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SmallPedestrianGroup" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crowd_nav" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="launchJavascriptDebuger" value="false" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="Tox" factoryName="Tox">
-      <module name="SmallPedestrianGroup" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="tests" factoryName="Doctests">
-      <module name="SmallPedestrianGroup" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="tests" factoryName="Unittests">
-      <module name="SmallPedestrianGroup" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crowd_nav/test1.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Python.test" />
+        <item itemvalue="Python.formation" />
+        <item itemvalue="Python.test1" />
       </list>
     </recent_temporary>
   </component>
@@ -226,44 +187,89 @@
       <workItem from="1586415610044" duration="715000" />
       <workItem from="1586613228643" duration="9415000" />
       <workItem from="1586623224256" duration="1264000" />
-      <workItem from="1587263172362" duration="3773000" />
+      <workItem from="1587263172362" duration="4431000" />
+      <workItem from="1587268963656" duration="24197000" />
+      <workItem from="1587481640768" duration="7991000" />
+      <workItem from="1587895756036" duration="704000" />
+      <workItem from="1587896484149" duration="66315000" />
+      <workItem from="1588132721249" duration="49117000" />
     </task>
+    <task id="LOCAL-00001" summary="Happy Labor Day！">
+      <created>1588322039116</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1588322039116</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Happy Labor Day！" />
+    <option name="LAST_COMMIT_MESSAGE" value="Happy Labor Day！" />
+  </component>
   <component name="WindowStateProjectService">
-    <state x="414" y="178" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1578624220200">
+    <state x="627" y="215" width="655" height="627" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1588060662969">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="414" y="178" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.34.1920.989@0.34.1920.989" timestamp="1578624220200" />
-    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl" timestamp="1587267910374">
+    <state x="627" y="215" width="655" height="627" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.34.1920.989@0.34.1920.989" timestamp="1588060662969" />
+    <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2" timestamp="1588322038028">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl/0.34.1920.989@0.34.1920.989" timestamp="1587267910374" />
-    <state width="1856" height="211" key="GridCell.Tab.0.bottom" timestamp="1582382213878">
+    <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2/0.34.1920.989@0.34.1920.989" timestamp="1588322038028" />
+    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl" timestamp="1588229716901">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="211" key="GridCell.Tab.0.bottom/0.34.1920.989@0.34.1920.989" timestamp="1582382213878" />
-    <state width="1856" height="211" key="GridCell.Tab.0.center" timestamp="1582382213877">
+    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl/0.34.1920.989@0.34.1920.989" timestamp="1588229716901" />
+    <state width="1856" height="585" key="GridCell.Tab.0.bottom" timestamp="1588321728618">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="211" key="GridCell.Tab.0.center/0.34.1920.989@0.34.1920.989" timestamp="1582382213877" />
-    <state width="1856" height="211" key="GridCell.Tab.0.left" timestamp="1582382213877">
+    <state width="1856" height="585" key="GridCell.Tab.0.bottom/0.34.1920.989@0.34.1920.989" timestamp="1588321728618" />
+    <state width="1856" height="585" key="GridCell.Tab.0.center" timestamp="1588321728616">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="211" key="GridCell.Tab.0.left/0.34.1920.989@0.34.1920.989" timestamp="1582382213877" />
-    <state width="1856" height="211" key="GridCell.Tab.0.right" timestamp="1582382213878">
+    <state width="1856" height="585" key="GridCell.Tab.0.center/0.34.1920.989@0.34.1920.989" timestamp="1588321728616" />
+    <state width="1856" height="585" key="GridCell.Tab.0.left" timestamp="1588321728614">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="211" key="GridCell.Tab.0.right/0.34.1920.989@0.34.1920.989" timestamp="1582382213878" />
-    <state x="318" y="75" width="1284" height="907" key="SettingsEditor" timestamp="1587268275674">
+    <state width="1856" height="585" key="GridCell.Tab.0.left/0.34.1920.989@0.34.1920.989" timestamp="1588321728614" />
+    <state width="1856" height="585" key="GridCell.Tab.0.right" timestamp="1588321728617">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="318" y="75" width="1284" height="907" key="SettingsEditor/0.34.1920.989@0.34.1920.989" timestamp="1587268275674" />
+    <state width="1856" height="585" key="GridCell.Tab.0.right/0.34.1920.989@0.34.1920.989" timestamp="1588321728617" />
+    <state x="258" y="103" width="1284" height="907" key="SettingsEditor" timestamp="1588151388407">
+      <screen x="0" y="34" width="1920" height="989" />
+    </state>
+    <state x="258" y="103" width="1284" height="907" key="SettingsEditor/0.34.1920.989@0.34.1920.989" timestamp="1588151388407" />
+    <state x="557" y="106" width="795" height="844" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1587902400499">
+      <screen x="0" y="34" width="1920" height="989" />
+    </state>
+    <state x="557" y="106" width="795" height="844" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/0.34.1920.989@0.34.1920.989" timestamp="1587902400499" />
+    <state x="642" y="96" width="626" height="864" key="refactoring.ChangeSignatureDialog" timestamp="1588132556476">
+      <screen x="0" y="34" width="1920" height="989" />
+    </state>
+    <state x="642" y="96" width="626" height="864" key="refactoring.ChangeSignatureDialog/0.34.1920.989@0.34.1920.989" timestamp="1588132556476" />
+    <state x="539" y="33" width="840" height="1034" key="search.everywhere.popup" timestamp="1588080771193">
+      <screen x="0" y="34" width="1920" height="989" />
+    </state>
+    <state x="539" y="33" width="840" height="1034" key="search.everywhere.popup/0.34.1920.989@0.34.1920.989" timestamp="1588080771193" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/PedestrianGroup1_0$test.coverage" NAME="test Coverage Results" MODIFIED="1582378458989" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test.coverage" NAME="test Coverage Results" MODIFIED="1588190494012" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
