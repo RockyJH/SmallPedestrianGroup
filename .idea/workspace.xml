@@ -2,41 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="459ead2e-bf8e-4502-95d3-3675cd22b607" name="Default Changelist" comment="Happy Labor Day！">
-      <change afterPath="$PROJECT_DIR$/crowd_nav/modules/graph_model.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/crowd_nav/modules/state_predictor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/crowd_nav/modules/trainer.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/env_sim/envs/modules/formation.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/env_sim/envs/modules/group_action.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_train/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_train/rugular_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_train/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_train/test_render.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_train/train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/rgl_group_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/rgl_group_control.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/train.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/utils/explorer.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/explorer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/utils/graph_model.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/utils/helper.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/mlp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/utils/memory.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/memory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/utils/state_predictor.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/utils/trainer.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/utils/value_estimator.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/value_estimator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/env_sim.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/env_sim.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/policy/orca.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/policy/orca.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/policy/policy.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/policy/policy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/policy/policy_factory.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/modules/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/utils/action.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/utils/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/modules/agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/utils/formation.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/utils/group.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/modules/group.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/utils/info.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/modules/info.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/utils/state.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/modules/state.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/modules/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/env_sim/hello.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_train/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_train/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -301,7 +269,7 @@
       <workItem from="1588132721249" duration="117808000" />
       <workItem from="1588610701021" duration="41785000" />
       <workItem from="1588698937966" duration="64775000" />
-      <workItem from="1588908357478" duration="1257000" />
+      <workItem from="1588908357478" duration="1975000" />
     </task>
     <task id="LOCAL-00001" summary="Happy Labor Day！">
       <created>1588322039116</created>
@@ -317,7 +285,14 @@
       <option name="project" value="LOCAL" />
       <updated>1588322087905</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="cloud training">
+      <created>1588909686932</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1588909686932</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -348,9 +323,14 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Happy Labor Day！" />
-    <option name="LAST_COMMIT_MESSAGE" value="Happy Labor Day！" />
+    <MESSAGE value="cloud training" />
+    <option name="LAST_COMMIT_MESSAGE" value="cloud training" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="455" y="108" width="1000" height="841" key="#Notifications" timestamp="1588909726170">
+      <screen x="0" y="34" width="1920" height="989" />
+    </state>
+    <state x="455" y="108" width="1000" height="841" key="#Notifications/0.34.1920.989@0.34.1920.989" timestamp="1588909726170" />
     <state x="414" y="97" width="1205" height="926" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1588615372590">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
@@ -363,30 +343,30 @@
       <screen x="0" y="34" width="1920" height="989" />
     </state>
     <state x="638" y="338" width="634" height="381" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.34.1920.989@0.34.1920.989" timestamp="1588323302646" />
-    <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2" timestamp="1588322097397">
+    <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2" timestamp="1588909686062">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2/0.34.1920.989@0.34.1920.989" timestamp="1588322097397" />
-    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl" timestamp="1588909124899">
+    <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2/0.34.1920.989@0.34.1920.989" timestamp="1588909686062" />
+    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl" timestamp="1588913520439">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl/0.34.1920.989@0.34.1920.989" timestamp="1588909124899" />
-    <state width="1856" height="651" key="GridCell.Tab.0.bottom" timestamp="1588909599835">
+    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl/0.34.1920.989@0.34.1920.989" timestamp="1588913520439" />
+    <state width="1856" height="437" key="GridCell.Tab.0.bottom" timestamp="1588913635646">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="651" key="GridCell.Tab.0.bottom/0.34.1920.989@0.34.1920.989" timestamp="1588909599835" />
-    <state width="1856" height="651" key="GridCell.Tab.0.center" timestamp="1588909599832">
+    <state width="1856" height="437" key="GridCell.Tab.0.bottom/0.34.1920.989@0.34.1920.989" timestamp="1588913635646" />
+    <state width="1856" height="437" key="GridCell.Tab.0.center" timestamp="1588913635644">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="651" key="GridCell.Tab.0.center/0.34.1920.989@0.34.1920.989" timestamp="1588909599832" />
-    <state width="1856" height="651" key="GridCell.Tab.0.left" timestamp="1588909599830">
+    <state width="1856" height="437" key="GridCell.Tab.0.center/0.34.1920.989@0.34.1920.989" timestamp="1588913635644" />
+    <state width="1856" height="437" key="GridCell.Tab.0.left" timestamp="1588913635642">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="651" key="GridCell.Tab.0.left/0.34.1920.989@0.34.1920.989" timestamp="1588909599830" />
-    <state width="1856" height="651" key="GridCell.Tab.0.right" timestamp="1588909599833">
+    <state width="1856" height="437" key="GridCell.Tab.0.left/0.34.1920.989@0.34.1920.989" timestamp="1588913635642" />
+    <state width="1856" height="437" key="GridCell.Tab.0.right" timestamp="1588913635646">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="651" key="GridCell.Tab.0.right/0.34.1920.989@0.34.1920.989" timestamp="1588909599833" />
+    <state width="1856" height="437" key="GridCell.Tab.0.right/0.34.1920.989@0.34.1920.989" timestamp="1588913635646" />
     <state width="1856" height="299" key="GridCell.Tab.1.bottom" timestamp="1588651891852">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
@@ -415,10 +395,10 @@
       <screen x="0" y="34" width="1920" height="989" />
     </state>
     <state x="568" y="81" width="1284" height="907" key="SettingsEditor/0.34.1920.989@0.34.1920.989" timestamp="1588390384041" />
-    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2" timestamp="1588322181736">
+    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2" timestamp="1588909735203">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2/0.34.1920.989@0.34.1920.989" timestamp="1588322181736" />
+    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2/0.34.1920.989@0.34.1920.989" timestamp="1588909735203" />
     <state x="662" y="202" width="586" height="652" key="VcsDiffUtil.ChangesDialog" timestamp="1588322131510">
       <screen x="0" y="34" width="1920" height="989" />
     </state>

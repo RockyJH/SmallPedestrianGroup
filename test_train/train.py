@@ -96,7 +96,7 @@ def main(args):
 
     # fill the memory pool with some RL experience
     group.policy.set_epsilon(epsilon_end)
-    explorer.run_k_episodes(1, 'train', update_memory=True, episode=0)  # 先run100个回合
+    explorer.run_k_episodes(100, 'train', update_memory=True, episode=0)  # 先run100个回合
     logging.info('Experience 集合的大小 : %d/%d', len(memory), memory.capacity)
 
     ##############3
