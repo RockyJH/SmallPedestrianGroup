@@ -1,62 +1,46 @@
-import logging
+from abc import ABC
+
 import torch
 import numpy as np
 import numpy.linalg
 
-import math
-
 from numpy.linalg import norm
-import itertools
 from env_sim.envs.policy.policy import Policy
-from env_sim.envs.utils.action import ActionRot, ActionXY
-from env_sim.envs.utils.state import tensor_to_joint_state
-from env_sim.envs.utils.utils import point_to_segment_dist
-from crowd_nav.utils.state_predictor import LinearStatePredictor
-from crowd_nav.utils.graph_model import RGL
-from crowd_nav.utils.value_estimator import ValueEstimator
-from env_sim.envs.utils.agent import Agent
+from env_sim.envs.modules.utils import point_to_segment_dist
+from crowd_nav.modules.state_predictor import LinearStatePredictor
+from crowd_nav.modules.graph_model import RGL
+from crowd_nav.modules.value_estimator import ValueEstimator
 
 
 class RglGroupControl(Policy):
+
     def __init__(self):
         super().__init__()
-        self.name = 'TieQinrui'
+        self.name = 'RglGroupControl'
         self.trainable = True
-        self.multiagent_training = True
-        self.epsilon = None
-        self.gamma = None
-        self.sampling = None
-        self.speed_samples = None
-        self.rotation_samples = None
-        self.speeds = None
-        self.rotations = None
-        self.action_values = None
-        self.robot_state_dim = 9
-        self.human_state_dim = 5
+        self.gamma = 0.9
+        self.group_state_dim = 8
+        self.agent_state_dim = 5
+        self.time_step = 0.25
         self.v_pref = 1
-        self.share_graph_model = None
-        self.value_estimator = None
-        self.linear_state_predictor = None
-        self.state_predictor = None
-        self.planning_depth = None
-        self.planning_width = None
-        self.do_action_clip = None
-        self.sparse_search = None
-        self.sparse_speed_samples = 2
-        self.sparse_rotation_samples = 8
-        self.action_group_index = []
-        self.traj = None
         self.agent_radius = 0.3
+        self.state_predictor = LinearStatePredictor(self.time_step)
+        self.graph_model = RGL()
+        self.value_estimator = ValueEstimator(self.graph_model)
+        self.model = [self.graph_model, self.value_estimator.value_network]  # value_network 是后面的哪个多层感知机
 
-    def configure(self, config):
-        self.state_predictor = LinearStatePredictor(config, self.time_step)
-        graph_model = RGL(config, self.robot_state_dim, self.human_state_dim)
-        self.value_estimator = ValueEstimator(config, graph_model)
-        self.model = [graph_model, self.value_estimator.value_network]
-        # value_network 是后面的哪个多层感知机
+        # 需要set的属性
+        self.epsilon = None
+        self.phase = None
+        self.device = None
+        self.last_state = None
 
-    def set_common_parameters(self, config):
-        self.gamma = config.rl.gamma
+        # reward function
+        self.success_reward = 1
+        self.collision_penalty = -1
+        self.k1 = 0.08  # 速度偏角权重
+        self.k2 = 0.02  # 队形宽度差异权重
+        self.k3 = 4  # 是否到达终点:距离小于K3 * self.agent_radius
 
     def set_device(self, device):
         self.device = device
@@ -66,15 +50,14 @@ class RglGroupControl(Policy):
     def set_epsilon(self, epsilon):
         self.epsilon = epsilon
 
-    def set_time_step(self, time_step):
-        self.time_step = time_step
-        self.state_predictor.time_step = time_step
+    def set_phase(self, phase):
+        self.phase = phase
 
     def get_normalized_gamma(self):
         return pow(self.gamma, self.time_step * self.v_pref)
 
     def get_model(self):
-        return self.value_estimator
+        return self.value_estimator  # value_estiator包括两个部分，【self.graph_model,self.value_netword】
 
     def get_state_dict(self):
         return {
@@ -94,70 +77,64 @@ class RglGroupControl(Policy):
         self.load_state_dict(checkpoint)
 
     # 遍历动作空间--计算执行该动作能获得的value，选取value最大的动作
-    def predict(self, state, action_space, group_members):
-        action_space = action_space
-        group_members = group_members
-
-        # 如果可能性小于贪婪度则随机选取动作
+    def predict(self, joint_state, action_space, group_members):
+        # 如果可能性小于随机概率则随机选取动作
         probability = np.random.random()
         if self.phase == 'train' and probability < self.epsilon:
-            max_action = self.action_space[np.random.choice(len(self.action_space))]
+            max_action = action_space[np.random.choice(len(action_space))]
         else:
             max_action = None
             max_value = float('-inf')
 
             # 遍历动作空间--计算执行该动作能获得的value，选取value最大的动作
             for action in action_space:
-
-                # 状态估计：此处状态估计是为小组做的，故组内成员不用管，对agent线性预测，对group直接放到目标位置。
-                next_state = self.state_predictor(state, action)
+                # 组外agent线性预测，小组直接放到动作的位置上
+                next_state = self.state_predictor(joint_state, action)
+                # next_state是join_state,
+                state_tensor = next_state.to_tensor(True, self.device)
+                # 这样转换出来的shape.state == 3 transform出来的是2
                 # 此处用上一步得到的状态估计，获得value
-                value_return = self.value_estimate(next_state)
+                value_return = self.value_estimator(state_tensor)
                 # 由碰撞检测获得reward_est,这个工作由 self.estimate_reward函数来负责
-                reward_est = self.estimate_reward(state, action, group_members)
-
+                reward_est = self.estimate_reward(joint_state, action, group_members)
                 value = reward_est + self.get_normalized_gamma() * value_return
                 if value > max_value:
                     max_value = value
                     max_action = action
+
             if max_action is None:
                 raise ValueError('Value network is not well trained.')
 
         # 训练时，执行到此，选出了动作，那么当前的state就成了last_state
         if self.phase == 'train':
-            self.last_state = self.transform(state)
+            self.last_state = self.transform(joint_state)
 
         return max_action
 
-    # 对于一个状态估值
-    def value_estimate(self, state):
-        value = self.value_estimator(state)
-        return value
-
     # 输入（状态，动作），线性推演碰撞检测，返回reward
-    def estimate_reward(self, state, action, group_members):
+    def estimate_reward(self, joint_state, action, group_members):
         ##########################################################################################
-        #### form的参照点外插, 这里暂时不做这个实现，后期可在选择实现，当前的实现是直接按照当前速度走下一步即可。###
+        #### 参照点外插,当前的实现是直接按照当前速度走下一步。###
         ##########################################################################################
 
-        agents_states = state.agents_state
-        group_state = state.group_state
+        agents_state = joint_state.agents_states
+        group_full_state = joint_state.self_state
 
-        # 由group的action（v，formation）获得每个group_memeber的action（一个速度）
-        vx, vy = action[0]
-        formation = action[1]
+        # 目的：由group的action（v，formation）获得每个group_memeber的action（一个速度）
+        vx, vy = action.v
+        formation = action.formation
 
+        # 参照点向外扩展一个时间片
         p = formation.get_ref_point()
-
-        p = p[0] + vx * self.time_step, p[1] * vy * self.time_step
-        relation = formation.get_relation()  # [[a,b],[a,b],[a,b]]
+        p = p[0] + vx * self.time_step, p[1] + vy * self.time_step
+        relation = formation.get_relation_horizontal()  # [[a,b],[a,b],[a,b]]
         vn, vc = formation.get_vn_vc()  # vn = (x,y) vc = (x,y)
 
         # 获取新的位置,np_array的形式
         new_p1 = np.array(p) + relation[0][0] * np.array(vn) + relation[0][1] * np.array(vc)
         new_p2 = np.array(p) + relation[1][0] * np.array(vn) + relation[1][1] * np.array(vc)
         new_p3 = np.array(p) + relation[2][0] * np.array(vn) + relation[2][1] * np.array(vc)
-        new_p_array = [new_p1, new_p2, new_p3]  # list里面是数组类型的新位置
+        new_p = [new_p1, new_p2, new_p3]  # list里面是数组类型的新位置
 
         # 一对一地分配谁去哪里
         member1, member2, member3 = group_members
@@ -165,74 +142,87 @@ class RglGroupControl(Policy):
         old_p1 = np.array(member1.get_position())
         old_p2 = np.array(member2.get_position())
         old_p3 = np.array(member3.get_position())
+        old_p = [old_p1, old_p2, old_p3]
 
-        old_p_arr = [old_p1, old_p2, old_p3]
+        orders = [[0, 1, 2], [0, 2, 1],
+                  [1, 0, 2], [1, 2, 0],
+                  [2, 0, 1], [2, 1, 0]]
 
-        all_premutations = [[1, 2, 3], [1, 3, 2],
-                            [2, 1, 3], [2, 3, 2],
-                            [3, 1, 2], [3, 2, 1]]
         min_dis_index = 0
         min_dis = float('inf')
 
-        for i, premutation in enumerate(all_premutations):
-            dis = np.linalg.norm(new_p_array[premutation[0]] - old_p_arr[0] +
-                                 new_p_array[premutation[1]] - old_p_arr[1] +
-                                 new_p_array[premutation[2]] - old_p_arr[2])
+        for i, order in enumerate(orders):
+            dis = np.linalg.norm(new_p[order[0]] - old_p[0]) \
+                  + np.linalg.norm(new_p[order[1]] - old_p[1]) \
+                  + np.linalg.norm(new_p[order[2]] - old_p[2])
             if dis < min_dis:
                 min_dis = dis
                 min_dis_index = i
 
-        final_premutation = all_premutations[min_dis_index]
+        final_order = orders[min_dis_index]
         # 即 1，2，3个member 分别去 final_premutaion 指示的地方
 
-        three_velocity = [new_p_array[final_premutation[0]] - old_p_arr[0],
-                          new_p_array[final_premutation[1]] - old_p_arr[1],
-                          new_p_array[final_premutation[2]] - old_p_arr[2]]
+        v_3 = [new_p[final_order[0]] - old_p[0],
+               new_p[final_order[1]] - old_p[1],
+               new_p[final_order[2]] - old_p[2]]
 
         # collision detection
-        dmin = float('inf')
         collision = False
         for j, member in enumerate(group_members):
-            for i, agent in enumerate(agents_states):
-                px = agent.px - old_p_arr[j][0]
-                py = agent.py - old_p_arr[j][1]
-                vx = agent.vx - three_velocity[j][0]
-                vy = agent.vy - three_velocity[j][1]
-                ex = px + vx * self.time_step
-                ey = py + vy * self.time_step
+            for i, agent in enumerate(agents_state):
+                tem_px = agent.px - old_p[j][0]
+                tem_py = agent.py - old_p[j][1]
+                tem_vx = agent.vx - v_3[j][0]
+                tem_vy = agent.vy - v_3[j][1]
+                ex = tem_px + tem_vx * self.time_step
+                ey = tem_py + tem_vy * self.time_step
                 # closest distance between boundaries of two agents
-                closest_dist = point_to_segment_dist(px, py, ex, ey, 0, 0) - 2 * agent.radius
+                closest_dist = point_to_segment_dist(tem_px, tem_py, ex, ey, 0, 0) - 2 * agent.radius
                 if closest_dist < 0:
                     collision = True
                     break
 
         # 检查是否到达终点，检查的是小组是否到达终点
-        px = group_state.px + action[0][0] * self.time_step
-        py = group_state.py + action[0][1] * self.time_step
+        px = group_full_state.px + vx * self.time_step
+        py = group_full_state.py + vy * self.time_step
         end_position = np.array((px, py))
-        reaching_goal = norm(end_position - np.array([group_state.gx, group_state.gy])) < 3 * self.agent_radius
+        reaching_goal = norm(
+            end_position - np.array([group_full_state.gx, group_full_state.gy])) < self.k3 * self.agent_radius
 
         # 碰撞、到达的奖励
+        reward = 0
         if collision:
-            reward = -0.25
+            reward = self.collision_penalty
         elif reaching_goal:
-            reward = 1
+            reward = self.success_reward
         else:
             reward = 0
-        # formation、速度
+        # formation reward
 
+        des_v = np.array((group_full_state.gx - group_full_state.px, group_full_state.gy - group_full_state.py))
+        des_s = np.linalg.norm(des_v)
+        des_v = des_v / des_s
+        cur_velocity = (group_full_state.vx, group_full_state.vy)
+        v_deviation = np.linalg.norm(np.array(cur_velocity) - des_v) / 2
+        velocity_deviation_reward = self.k1 * (0.5 - v_deviation)
+
+        cur_width = formation.get_width()
+        form_deviation = np.math.fabs(8 * self.agent_radius - cur_width) / (6 * self.agent_radius)
+        form_deviation_reward = self.k2 * (0.5 - form_deviation)
+
+        reward = reward + velocity_deviation_reward + form_deviation_reward
 
         return reward
 
-    def transform(self, state):
+    def transform(self, joint_state):
         """
         Take the JointState to tensors
 
         :param state:
         :return: tensor of shape (# of agent, len(state))
         """
-        robot_state_tensor = torch.Tensor([state.robot_state.to_tuple()]).to(self.device)
-        human_states_tensor = torch.Tensor([human_state.to_tuple() for human_state in state.human_states]). \
+        group_state_tensor = torch.Tensor([joint_state.self_state.to_tuple()]).to(self.device)
+        agents_states_tensor = torch.Tensor([agent_state.to_tuple() for agent_state in joint_state.agents_states]). \
             to(self.device)
 
-        return robot_state_tensor, human_states_tensor
+        return group_state_tensor, agents_states_tensor

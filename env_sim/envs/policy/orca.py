@@ -1,72 +1,60 @@
 import numpy as np
 import rvo2
 from env_sim.envs.policy.policy import Policy
-from env_sim.envs.utils.action import ActionXY
+from env_sim.envs.modules.utils import ActionXY
+
+"""
+timeStep        ：仿真的时间步长，须为正
+neighborDist    ：最大邻居距离，判定哪些人需要考虑，越大运行时间越长，太小不安全，非负
+maxNeighbors    ：最多考虑多少个邻居，越大运行时间越长，太少不安全
+timeHorizon     ：向前看多远的时间，越远越能提前反应，同时速度变换的自由越小，必须为正
+timeHorizonObst ：对障碍物能往前预判多长时间，也是越大越提前反映，自由度越小
+radius          ：半径 非负
+maxSpeed        ：最大速度，非负
+velocity        ：初始速度，二维线性值，可选
+先使用最大邻居距离和最大的邻居数目，将他们设置的足够大，以使得他们能将所有人都考虑进来
+Time_horizon 必须至少在一个步长是安全的，即要大于等于时间步长喽,静态障碍物不考虑。
+在每一个时间片内都创建一个rvo2 模拟器往前执行一步，输入状态，返回动作
+Python-RVO2 API: https://github.com/sybrenstuvel/Python-RVO2/blob/master/src/rvo2.pyx
+How simulation is done in RVO2: https://github.com/sybrenstuvel/Python-RVO2/blob/master/src/Agent.cpp
+"""
 
 
-# 这个ORCA用来控制一个agent,输入state（自己的full_state+ 其他人observable_state）
 class ORCA(Policy):
     def __init__(self):
-        """
-        timeStep        ：仿真的时间步长，须为正
-        neighborDist    ：最大邻居距离，判定哪些人需要考虑，越大运行时间越长，太小不安全，非负
-        maxNeighbors    ：最多考虑多少个邻居，越大运行时间越长，太少不安全
-        timeHorizon     ：向前看多远的时间，越远越能提前反应，同时速度变换的自由越小，必须为正
-        timeHorizonObst ：对障碍物能往前预判多长时间，也是越大越提前反映，自由度越小
-        radius          ：半径 非负
-        maxSpeed        ：最大速度，非负
-        velocity        ：初始速度，二维线性值，可选
-
-        先使用最大邻居距离和最大的邻居数目，将他们设置的足够大，以使得他们能将所有人都考虑进来
-        Time_horizon 必须至少在一个步长是安全的，即要大于等于时间步长喽
-        静态障碍物不考虑。
-        """
         super().__init__()
         self.name = 'ORCA'
         self.trainable = False  # 不可训练
-        self.multiagent_training = True
-        self.kinematics = 'holonomic'  # 运动方式
-        self.safety_space = 0
+        self.safety_space = 0  # 未使用
         self.neighbor_dist = 10  # 10以外的就不是我的邻居了
         self.max_neighbors = 10  # 最多考虑10个人
         self.time_horizon = 5  # 向前考虑5个时间单位
         self.time_horizon_obst = 5  # 静态障碍物也是，不过没有用
         self.radius = 0.3  # 半径
-        self.max_speed = 1  # 最大速度
+        self.max_speed = 1.2  # 最大速度
         self.sim = None
 
-    def configure(self, config):  # 这是父类的方法，抽象方法，没有实现
-        return
-
-    def set_phase(self, phase):  # 父类policy的方法，为了区分时训练场景还是测试场景
-        return
-
     def predict(self, state, action_space=None, members=None):
-        """
-        在每一个step内都创建一个rvo2 模拟器往前执行一步，输入状态，返回动作
-        到达目的地也不停下来，因为一停，破坏了互反的假设
-        Python-RVO2 API: https://github.com/sybrenstuvel/Python-RVO2/blob/master/src/rvo2.pyx
-        How simulation is done in RVO2: https://github.com/sybrenstuvel/Python-RVO2/blob/master/src/Agent.cpp
-        """
         robot_state = state.robot_state
-        params = self.neighbor_dist, self.max_neighbors, self.time_horizon, self.time_horizon_obst
         # params 是一个list
+        params = self.neighbor_dist, self.max_neighbors, self.time_horizon, self.time_horizon_obst
 
-        # 当当前人数和上一不人数不一样了，才删掉sim并置为空,+1 加的是自己
+        # 更新sim
         if self.sim is not None and self.sim.getNumAgents() != len(state.human_states) + 1:
             del self.sim
             self.sim = None
         if self.sim is None:
             self.sim = rvo2.PyRVOSimulator(self.time_step, *params, self.radius, self.max_speed)
+            # 位置, *params, 半径, v_pref, 速度
             self.sim.addAgent(robot_state.position, *params, robot_state.radius + 0.01 + self.safety_space,
-                              robot_state.v_pref, robot_state.velocity)  # 最大速度，所以机器人的期望速度是一个值
+                              robot_state.v_pref, robot_state.velocity)
             for human_state in state.human_states:
                 self.sim.addAgent(human_state.position, *params, human_state.radius + 0.01 + self.safety_space,
                                   self.max_speed, human_state.velocity)  # 自己的期望速度是最大速度
-        else:  # sim不为空，但是人数也没有发生变化
-            self.sim.setAgentPosition(0, robot_state.position)  # 0 是agent的编号，0 号是robot
-            self.sim.setAgentVelocity(0, robot_state.velocity)  # 这一步只 设置位置和速度
-            for i, human_state in enumerate(state.human_states):  # 其他人也只是速度和位置变化了
+        else:  # 只是更新sim里的部分属性
+            self.sim.setAgentPosition(0, robot_state.position)
+            self.sim.setAgentVelocity(0, robot_state.velocity)
+            for i, human_state in enumerate(state.human_states):
                 self.sim.setAgentPosition(i + 1, human_state.position)
                 self.sim.setAgentVelocity(i + 1, human_state.velocity)
 
@@ -85,9 +73,14 @@ class ORCA(Policy):
 
         return action
 
+    def configure(self, config):  # 父类方法
+        return
 
-# 输入的是所有人的所有的状态
-class CentralizedORCA(ORCA):  # 从ORCA 继承而来
+    def set_phase(self, phase):  # 父类方法
+        return
+
+
+class CentralizedORCA(ORCA):
     def __init__(self):
         super().__init__()
 
@@ -99,10 +92,15 @@ class CentralizedORCA(ORCA):  # 从ORCA 继承而来
             self.sim = None
 
         if self.sim is None:
-            self.sim = rvo2.PyRVOSimulator(self.time_step, *params, self.radius, self.max_speed)
-            for agent_state in state:
-                self.sim.addAgent(agent_state.position, *params, agent_state.radius + 0.01 + self.safety_space,
-                                  self.max_speed, agent_state.velocity)
+            # 环境最大速度是1.2
+            self.sim = rvo2.PyRVOSimulator(self.time_step, *params, self.radius + self.safety_space, self.max_speed)
+            for i, agent_state in enumerate(state):
+                if i < 3:  # 将groupmember的最大速度设置为1.2
+                    self.sim.addAgent(agent_state.position, *params, agent_state.radius,
+                                      self.max_speed, agent_state.velocity)
+                else:  # 将其他agent的最大速度设置为1
+                    self.sim.addAgent(agent_state.position, *params, agent_state.radius,
+                                      1, agent_state.velocity)
         else:
             for i, agent_state in enumerate(state):
                 self.sim.setAgentPosition(i, agent_state.position)
@@ -110,10 +108,15 @@ class CentralizedORCA(ORCA):  # 从ORCA 继承而来
 
         # Set the preferred velocity to be a vector of unit magnitude (speed) in the direction of the goal.
         for i, agent_state in enumerate(state):
-            velocity = np.array((agent_state.gx - agent_state.px, agent_state.gy - agent_state.py))
-            speed = np.linalg.norm(velocity)
-            pref_vel = velocity / speed if speed > 1 else velocity
-            self.sim.setAgentPrefVelocity(i, (pref_vel[0], pref_vel[1]))
+            if i < 3:
+                # 位置相减得到的是0.25秒应该走完的向量，乘以4得到的是速度，这个速度的差别使得相互追赶
+                velocity = np.array((4 * (agent_state.gx - agent_state.px), 4 * (agent_state.gy - agent_state.py)))
+                self.sim.setAgentPrefVelocity(i, (velocity[0], velocity[1]))
+            else:
+                velocity = np.array((agent_state.gx - agent_state.px, agent_state.gy - agent_state.py))
+                speed = np.linalg.norm(velocity)
+                pref_vel = velocity / speed if speed > 1 else velocity  # 设置为1相当于提前四个步长就减速了，可设置为1
+                self.sim.setAgentPrefVelocity(i, (pref_vel[0], pref_vel[1]))
 
         self.sim.doStep()
         actions = [ActionXY(*self.sim.getAgentVelocity(i)) for i in range(len(state))]

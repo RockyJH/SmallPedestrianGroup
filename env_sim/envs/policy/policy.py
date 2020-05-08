@@ -16,7 +16,7 @@ class Policy(object):
         self.model = None
         self.device = None
         self.last_state = None
-        self.time_step = None
+        self.time_step = 0.25
         # if agent is assumed to know the dynamics of real world
         self.env = None
 
