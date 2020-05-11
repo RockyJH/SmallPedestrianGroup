@@ -29,6 +29,7 @@ class EnvSim(gym.Env):
         self.train_val_scenario = 'circle_crossing'
         self.test_scenario = 'circle_crossing'
         self.current_scenario = 'circle_crossing'
+
         self.randomize_attributes = False
         self.nonstop_human = False
         self.centralized_planner = CentralizedORCA()
@@ -45,7 +46,7 @@ class EnvSim(gym.Env):
         self.rewards = []
 
         # reward function
-        self.success_reward = 1
+        self.success_reward = 1.5
         self.collision_penalty = -1
         self.k1 = 0.08  # 速度偏角权重
         self.k2 = 0.02  # 队形宽度差异权重
@@ -65,13 +66,15 @@ class EnvSim(gym.Env):
         self.human_goals = []
         self.test_scene_seeds = []
 
-        logging.info('[env_sim 提示：] 小组外Agent数目: {}'.format(self.out_group_agents_num))
+        self.c = 0
+
+        logging.info('[env_sim:] out group Agent numbers: {}.'.format(self.out_group_agents_num))
         if self.randomize_attributes:
-            logging.info("[env_sim 提示：] 组外Agent的期望速度随机")
+            logging.info("[env_sim:] out group Agents' prefer speed")
         else:
-            logging.info("[env_sim 提示：] 组外Agent期望速度未随机：{}。".format(self.agent_radius))
-        logging.info('[env_sim 提示：] 训练场景： {} , 测试场景: {}'.format(self.train_val_scenario, self.test_scenario))
-        logging.info('[env_sim 提示：] 正方形宽度: {}, 圆的半径: {}'.format(self.square_width, self.circle_radius))
+            logging.info("[env_sim:] out group Agents' prefer speed random?:{}。".format(self.agent_radius))
+        logging.info('[env_sim:] train scene： {} , test scene: {}'.format(self.train_val_scenario, self.test_scenario))
+        logging.info('[env_sim:] square width: {}, circle radius: {}'.format(self.square_width, self.circle_radius))
 
     def set_group(self, group):
         self.group = group
@@ -103,7 +106,7 @@ class EnvSim(gym.Env):
             v_1 = -px - px
             v_2 = -py - py
             speed = np.linalg.norm(np.array((v_1, v_2)))
-            agent.set(px, py, v_1 / speed, v_2 / speed, - px, -py)  # 位置，速度，目标
+            agent.set(px, py, v_1 / speed, v_2 / speed, px, -py)  # 位置，速度，目标
 
         return agent
 
@@ -227,17 +230,17 @@ class EnvSim(gym.Env):
             reward = 0
             done = True
             info = Timeout()
-            logging.info("[env_sim提示：] 超时未到达。")
+            logging.info("[env_sim:] time out.")
         elif collision:  # 碰撞给惩罚 gameOver
             reward = self.collision_penalty
             done = True
             info = Collision()
-            logging.info("[env_sim提示：] 在第 {} 步发生碰撞。".format(round(self.global_time / self.time_step) + 4))
+            logging.info("[env_sim:] collided on {} steps.".format(round(self.global_time / self.time_step) + 4))
         elif reaching_goal:  # 到达目的给奖励 gameOver
             reward = self.success_reward
             done = True
             info = ReachGoal()
-            logging.info("env_sim提示： 小组成功到达目的地。")
+            logging.info("[env_sim:]： successfully reaching the goal!")
         else:  # 其他就不奖不罚
             reward = 0
             done = False

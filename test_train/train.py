@@ -28,7 +28,9 @@ def main(args):
     # step2-创建输出文件
     make_new_dir = True
     if os.path.exists(args.output_dir):
-        key = input('输出文件的路径已经存在！是否删除重建？ (y/n)')
+        key = input('the out_put_dir is already exist, '
+                    'do you want to override it?\n if you input \'no\' '
+                    'we will creat a new file named with current time. (y/n)')
         if key == 'y':
             shutil.rmtree(args.output_dir)
         else:
@@ -55,7 +57,7 @@ def main(args):
 
     # step5-device
     device = torch.device("cpu")
-    logging.info('[train.py 提示：] 使用设备: %s', device)
+    logging.info('[train.py:] use device:%s', device)
     writer = SummaryWriter(log_dir=args.output_dir)  # writer 是为了输出日志文件
 
     # step6- 配置控制策略
@@ -97,7 +99,7 @@ def main(args):
     # fill the memory pool with some RL experience
     group.policy.set_epsilon(epsilon_end)
     explorer.run_k_episodes(100, 'train', update_memory=True, episode=0)  # 先run100个回合
-    logging.info('Experience 集合的大小 : %d/%d', len(memory), memory.capacity)
+    logging.info('Experience set size: %d/%d', len(memory), memory.capacity)
 
     ##############3
     trainer.update_target_model(policy.get_model())
@@ -153,6 +155,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--output_dir', type=str, default='data')
+    parser.add_argument('--test_after_every_eval', default=False, action='store_true')
     sys_args = parser.parse_args()
 
     main(sys_args)
