@@ -35,12 +35,13 @@ class RglGroupControl(Policy):
         self.device = None
         self.last_state = None
 
-        # reward function
+        # reward function ！！！！！！！！！！！！！！！
+        # 在env_sim.py里用于获得真实reward，rgl_group_control.py里用于预测，一并更改！！！！！
         self.success_reward = 1
         self.collision_penalty = -1
-        self.k1 = 0.08  # 速度偏角权重
-        self.k2 = 0.02  # 队形宽度差异权重
-        self.k3 = 4  # 是否到达终点:距离小于K3 * self.agent_radius
+        self.k1 = 0.08  # 速度偏向的权重
+        self.k2 = 0.04  # 队形差异权重
+        self.k3 = 3  # 到达终点判定: 距离 <=  K3 * self.agent_radius
 
     def set_device(self, device):
         self.device = device

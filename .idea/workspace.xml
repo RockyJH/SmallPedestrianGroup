@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="459ead2e-bf8e-4502-95d3-3675cd22b607" name="Default Changelist" comment="Happy Labor Day！">
+    <list default="true" id="459ead2e-bf8e-4502-95d3-3675cd22b607" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/test_train/best_val.pth" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_train/rl_model_0.pth" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/data/events.out.tfevents.1588909310.TQR-ubuntu" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/crowd_nav/data/output.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/modules/explorer.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/explorer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/rgl_group_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/rgl_group_control.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/env_sim/envs/env_sim.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/env_sim.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/hello.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/env_sim/envs/modules/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/modules/agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/env_sim/envs/policy/orca.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/policy/orca.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_train/rugular_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_train/rugular_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test_train/test.gif" beforeDir="false" afterPath="$PROJECT_DIR$/test_train/test.gif" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_train/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_train/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_train/test_render.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_train/test_render.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test_train/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_train/train.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -78,6 +84,7 @@
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/test_train" />
+      <recent name="$PROJECT_DIR$/crowd_nav" />
       <recent name="$PROJECT_DIR$/env_sim/envs" />
       <recent name="$PROJECT_DIR$/env_sim" />
     </key>
@@ -105,7 +112,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="formation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="env_sim" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SmallPedestrianGroup" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -113,34 +120,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/env_sim/envs/modules" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/env_sim/envs" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/env_sim/envs/modules/formation.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="orca" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="SmallPedestrianGroup" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/env_sim/envs/policy" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/env_sim/envs/policy/orca.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/env_sim/envs/env_sim.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -193,6 +178,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="test_render" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SmallPedestrianGroup" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/test_train" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test_train/test_render.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="train" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SmallPedestrianGroup" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -218,17 +225,17 @@
     <list>
       <item itemvalue="Python.train" />
       <item itemvalue="Python.test" />
-      <item itemvalue="Python.orca" />
       <item itemvalue="Python.rugular_test" />
-      <item itemvalue="Python.formation" />
+      <item itemvalue="Python.test_render" />
+      <item itemvalue="Python.env_sim" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.train" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.rugular_test" />
-        <item itemvalue="Python.formation" />
-        <item itemvalue="Python.orca" />
+        <item itemvalue="Python.test_render" />
+        <item itemvalue="Python.env_sim" />
       </list>
     </recent_temporary>
   </component>
@@ -275,7 +282,8 @@
       <workItem from="1588698937966" duration="64775000" />
       <workItem from="1588908357478" duration="3515000" />
       <workItem from="1589114152226" duration="9611000" />
-      <workItem from="1589149635520" duration="6246000" />
+      <workItem from="1589149635520" duration="29505000" />
+      <workItem from="1589279051818" duration="18878000" />
     </task>
     <task id="LOCAL-00001" summary="Happy Labor Day！">
       <created>1588322039116</created>
@@ -305,7 +313,14 @@
       <option name="project" value="LOCAL" />
       <updated>1588913678801</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="modify the comments">
+      <created>1589180823483</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1589180823483</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -338,7 +353,8 @@
     <MESSAGE value="Happy Labor Day！" />
     <MESSAGE value="cloud training" />
     <MESSAGE value="cloud train" />
-    <option name="LAST_COMMIT_MESSAGE" value="cloud train" />
+    <MESSAGE value="modify the comments" />
+    <option name="LAST_COMMIT_MESSAGE" value="modify the comments" />
   </component>
   <component name="WindowStateProjectService">
     <state x="455" y="108" width="1000" height="841" key="#Notifications" timestamp="1588909726170">
@@ -349,6 +365,10 @@
       <screen x="0" y="34" width="1920" height="989" />
     </state>
     <state x="414" y="97" width="1205" height="926" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.34.1920.989@0.34.1920.989" timestamp="1588615372590" />
+    <state x="442" y="308" width="1026" height="440" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1589191583567">
+      <screen x="0" y="34" width="1920" height="989" />
+    </state>
+    <state x="442" y="308" width="1026" height="440" key="#com.intellij.fileTypes.FileTypeChooser/0.34.1920.989@0.34.1920.989" timestamp="1589191583567" />
     <state x="627" y="215" width="655" height="627" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1588498030503">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
@@ -361,26 +381,26 @@
       <screen x="0" y="34" width="1920" height="989" />
     </state>
     <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2/0.34.1920.989@0.34.1920.989" timestamp="1589180822151" />
-    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl" timestamp="1589169581448">
+    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl" timestamp="1589364424722">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl/0.34.1920.989@0.34.1920.989" timestamp="1589169581448" />
-    <state width="1856" height="143" key="GridCell.Tab.0.bottom" timestamp="1589176568277">
+    <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl/0.34.1920.989@0.34.1920.989" timestamp="1589364424722" />
+    <state width="1856" height="188" key="GridCell.Tab.0.bottom" timestamp="1589370444906">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="143" key="GridCell.Tab.0.bottom/0.34.1920.989@0.34.1920.989" timestamp="1589176568277" />
-    <state width="1856" height="143" key="GridCell.Tab.0.center" timestamp="1589176568276">
+    <state width="1856" height="188" key="GridCell.Tab.0.bottom/0.34.1920.989@0.34.1920.989" timestamp="1589370444906" />
+    <state width="1856" height="188" key="GridCell.Tab.0.center" timestamp="1589370444905">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="143" key="GridCell.Tab.0.center/0.34.1920.989@0.34.1920.989" timestamp="1589176568276" />
-    <state width="1856" height="143" key="GridCell.Tab.0.left" timestamp="1589176568276">
+    <state width="1856" height="188" key="GridCell.Tab.0.center/0.34.1920.989@0.34.1920.989" timestamp="1589370444905" />
+    <state width="1856" height="188" key="GridCell.Tab.0.left" timestamp="1589370444905">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="143" key="GridCell.Tab.0.left/0.34.1920.989@0.34.1920.989" timestamp="1589176568276" />
-    <state width="1856" height="143" key="GridCell.Tab.0.right" timestamp="1589176568277">
+    <state width="1856" height="188" key="GridCell.Tab.0.left/0.34.1920.989@0.34.1920.989" timestamp="1589370444905" />
+    <state width="1856" height="188" key="GridCell.Tab.0.right" timestamp="1589370444906">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="143" key="GridCell.Tab.0.right/0.34.1920.989@0.34.1920.989" timestamp="1589176568277" />
+    <state width="1856" height="188" key="GridCell.Tab.0.right/0.34.1920.989@0.34.1920.989" timestamp="1589370444906" />
     <state width="1856" height="299" key="GridCell.Tab.1.bottom" timestamp="1588651891852">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
@@ -409,10 +429,10 @@
       <screen x="0" y="34" width="1920" height="989" />
     </state>
     <state x="490" y="116" width="1284" height="907" key="SettingsEditor/0.34.1920.989@0.34.1920.989" timestamp="1589114306809" />
-    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2" timestamp="1588913717291">
+    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2" timestamp="1589180987535">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2/0.34.1920.989@0.34.1920.989" timestamp="1588913717291" />
+    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2/0.34.1920.989@0.34.1920.989" timestamp="1589180987535" />
     <state x="662" y="202" width="586" height="652" key="VcsDiffUtil.ChangesDialog" timestamp="1588322131510">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
@@ -425,20 +445,22 @@
       <screen x="0" y="34" width="1920" height="989" />
     </state>
     <state x="642" y="96" width="626" height="864" key="refactoring.ChangeSignatureDialog/0.34.1920.989@0.34.1920.989" timestamp="1588132556476" />
-    <state x="539" y="34" width="840" height="987" key="search.everywhere.popup" timestamp="1588662779588">
+    <state x="539" y="34" width="840" height="987" key="search.everywhere.popup" timestamp="1589283478103">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="539" y="34" width="840" height="987" key="search.everywhere.popup/0.34.1920.989@0.34.1920.989" timestamp="1588662779588" />
+    <state x="539" y="34" width="840" height="987" key="search.everywhere.popup/0.34.1920.989@0.34.1920.989" timestamp="1589283478103" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$train.coverage" NAME="train Coverage Results" MODIFIED="1589169706137" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crowd_nav" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$train.coverage" NAME="train Coverage Results" MODIFIED="1589370444892" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crowd_nav" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test1.coverage" NAME="test1 Coverage Results" MODIFIED="1588686476226" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test_train" />
-    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$env_sim.coverage" NAME="env_sim Coverage Results" MODIFIED="1588697261371" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/env_sim/envs" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$env_sim.coverage" NAME="env_sim Coverage Results" MODIFIED="1589286050918" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/env_sim/envs" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$rugular_test.coverage" NAME="rugular_test Coverage Results" MODIFIED="1589363981033" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test_train" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test2.coverage" NAME="rugular_test Coverage Results" MODIFIED="1588868492461" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test_train" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$orca.coverage" NAME="orca Coverage Results" MODIFIED="1588697344788" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/env_sim/envs/policy" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$formation.coverage" NAME="formation Coverage Results" MODIFIED="1588864270291" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/env_sim/envs/modules" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_render.coverage" NAME="test_render Coverage Results" MODIFIED="1589290716148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test_train" />
     <SUITE FILE_PATH="coverage/PedestrianGroup1_0$test.coverage" NAME="test Coverage Results" MODIFIED="1582378458989" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$utils.coverage" NAME="utils Coverage Results" MODIFIED="1588651878211" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/env_sim/envs/modules" />
-    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test.coverage" NAME="test Coverage Results" MODIFIED="1589123761651" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test_train" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test.coverage" NAME="test Coverage Results" MODIFIED="1589366380430" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test_train" />
   </component>
 </project>

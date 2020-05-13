@@ -45,12 +45,16 @@ class EnvSim(gym.Env):
         self.states = []
         self.rewards = []
 
-        # reward function
-        self.success_reward = 1.5
+        # 画轨迹
+        self.want_truth = []
+
+        # reward function ！！！！！！！！！！！！！！！
+        # 在env_sim.py里用于获得真实reward，rgl_group_control.py里用于预测，一并更改！！！！！
+        self.success_reward = 1
         self.collision_penalty = -1
-        self.k1 = 0.08  # 速度偏角权重
-        self.k2 = 0.02  # 队形宽度差异权重
-        self.k3 = 4  # 是否到达终点:距离小于K3 * self.agent_radius
+        self.k1 = 0.08  # 速度偏向的权重
+        self.k2 = 0.04  # 队形差异权重
+        self.k3 = 3  # 到达终点判定: 距离 <=  K3 * self.agent_radius
 
         # 暂时用不到的等程序调好可删除
         self.action_values = None
@@ -86,8 +90,8 @@ class EnvSim(gym.Env):
             agent.sample_random_v_pref()
 
         if self.current_scenario == 'circle_crossing':
-            while True:  # 一直循环直到成功的生成一个agent实例
-                angle = np.random.random() * np.pi  # 随机角度(0,pi)
+            while True:  # 循环直到生成一个agent实例
+                angle = np.random.random() * np.pi  # 在图中上半圆
                 # add some noise
                 px_noise = (np.random.random() - 0.5) * agent.v_pref
                 py_noise = (np.random.random() - 0.5) * agent.v_pref
@@ -106,7 +110,7 @@ class EnvSim(gym.Env):
             v_1 = -px - px
             v_2 = -py - py
             speed = np.linalg.norm(np.array((v_1, v_2)))
-            agent.set(px, py, v_1 / speed, v_2 / speed, px, -py)  # 位置，速度，目标
+            agent.set(px, py, v_1 / speed, v_2 / speed, -px, -py)  # 位置，速度，目标（原点对称）
 
         return agent
 
@@ -118,6 +122,8 @@ class EnvSim(gym.Env):
         self.group_actions.clear()
         self.out_group_agents.clear()
         self.group_members = None
+
+        self.want_truth.clear()
 
         # group会自动给自己一个速度指向目标的1，也是拥有一切
         # 此时会同时在环境中生成 group_members，将其添加到all_agents
@@ -135,12 +141,13 @@ class EnvSim(gym.Env):
     # 返回一个observation 类型：list
     def compute_observation_for(self, cur):
         ob = []
-        if cur == self.group:
+        if cur == self.group: # 用于为group整体算ob
             for agent in self.out_group_agents:
                 ob.append(agent.get_observable_state())
-        else:
+        else: # 为单个agent计算ob
             for other_agent in self.out_group_agents + self.group_members:
-                ob.append(other_agent.get_observable_state())
+                if other_agent is not cur: # 计算其他人的ob
+                    ob.append(other_agent.get_observable_state())
         return ob
 
     # return ob, reward, done, info
@@ -195,9 +202,15 @@ class EnvSim(gym.Env):
         self.group_members[1].set_goal_position(np2)
         self.group_members[2].set_goal_position(np3)
 
-        # 所有agents的动作
-        all_agents_state = [agent.get_full_state() for agent in self.group_members + self.out_group_agents]
-        all_agents_actions = self.centralized_planner.predict(all_agents_state)
+        # # 所有agents的动作---使用centralized ORCA
+        # all_agents_state = [agent.get_full_state() for agent in self.group_members + self.out_group_agents]
+        # all_agents_actions = self.centralized_planner.predict(all_agents_state)
+
+        all_agents_actions = []
+        for agent in (self.group_members + self.out_group_agents):
+            ob = self.compute_observation_for(agent)
+            action = agent.get_action(ob)
+            all_agents_actions.append(action)
 
         collision = False
         # 检测每个group_member和组外agent是否碰撞，组外agent之间互碰不管
@@ -271,8 +284,16 @@ class EnvSim(gym.Env):
             # 每一步都把这一步所有人的状态存，前三个是 group member
             self.states.append([agent.get_full_state() for agent in self.group_members + self.out_group_agents])
             # self.rewards.append(reward)
+
+            # 记录想去位置和orca导致的真实位置
+            truth0 = self.group_members[0].get_position()
+            truth1 = self.group_members[1].get_position()
+            truth2 = self.group_members[2].get_position()
+            self.want_truth.append([new_p1, new_p2, new_p3, truth0, truth1, truth2])
+
             # self.robot_actions.append(action)
             # compute the observation
+
             ob = self.compute_observation_for(self.group)
         return ob, reward, done, info
 
@@ -292,6 +313,63 @@ class EnvSim(gym.Env):
         arrow_style = patches.ArrowStyle("->", head_length=4, head_width=2)  # 箭头的长度和宽度
         display_numbers = True  # 展示数字
 
+        if mode == 'traj':
+            fig, ax = plt.subplots(figsize=(7, 7))
+            ax.tick_params(labelsize=16)
+            ax.set_xlim(-5, 5)
+            ax.set_ylim(-5, 5)
+            ax.set_xlabel('x(m)', fontsize=16)
+            ax.set_ylabel('y(m)', fontsize=16)
+
+            # add human start positions and goals
+            human_colors = [cmap(i) for i in range(len(self.humans))]
+            for i in range(len(self.humans)):
+                human = self.humans[i]
+                human_goal = mlines.Line2D([human.get_goal_position()[0]], [human.get_goal_position()[1]],
+                                           color=human_colors[i],
+                                           marker='*', linestyle='None', markersize=15)
+                ax.add_artist(human_goal)
+                human_start = mlines.Line2D([human.get_start_position()[0]], [human.get_start_position()[1]],
+                                            color=human_colors[i],
+                                            marker='o', linestyle='None', markersize=15)
+                ax.add_artist(human_start)
+
+            robot_positions = [self.states[i][0].position for i in range(len(self.states))]
+            human_positions = [[self.states[i][1][j].position for j in range(len(self.humans))]
+                               for i in range(len(self.states))]
+
+            for k in range(len(self.states)):
+                if k % 4 == 0 or k == len(self.states) - 1:
+                    robot = plt.Circle(robot_positions[k], self.robot.radius, fill=False, color=robot_color)
+                    humans = [plt.Circle(human_positions[k][i], self.humans[i].radius, fill=False, color=cmap(i))
+                              for i in range(len(self.humans))]
+                    ax.add_artist(robot)
+                    for human in humans:
+                        ax.add_artist(human)
+
+                # add time annotation
+                global_time = k * self.time_step
+                if global_time % 4 == 0 or k == len(self.states) - 1:
+                    agents = humans + [robot]
+                    times = [plt.text(agents[i].center[0] - x_offset, agents[i].center[1] - y_offset,
+                                      '{:.1f}'.format(global_time),
+                                      color='black', fontsize=14) for i in range(self.human_num + 1)]
+                    for time in times:
+                        ax.add_artist(time)
+                if k != 0:
+                    nav_direction = plt.Line2D((self.states[k - 1][0].px, self.states[k][0].px),
+                                               (self.states[k - 1][0].py, self.states[k][0].py),
+                                               color=robot_color, ls='solid')
+                    human_directions = [plt.Line2D((self.states[k - 1][1][i].px, self.states[k][1][i].px),
+                                                   (self.states[k - 1][1][i].py, self.states[k][1][i].py),
+                                                   color=cmap(i), ls='solid')
+                                        for i in range(self.human_num)]
+                    ax.add_artist(nav_direction)
+                    for human_direction in human_directions:
+                        ax.add_artist(human_direction)
+            plt.legend([robot], ['Robot'], fontsize=16)
+            plt.show()
+
         if mode == 'video':
             fig, ax = plt.subplots(figsize=(7, 7))  # 面板大小7，7 fig 表示一窗口 ax 是一个框
             ax.tick_params(labelsize=12)  # 坐标字体大小
@@ -300,6 +378,22 @@ class EnvSim(gym.Env):
             ax.set_xlabel('x(m)', fontsize=14)
             ax.set_ylabel('y(m)', fontsize=14)
             show_human_start_goal = True
+
+            ########画静态的轨迹##############
+            for i, want_truth in enumerate(self.want_truth):
+                if i % 5 == 0 or i == len(self.want_truth) - 1:
+                    # want_truth === want1,want2,want3,truth1,truth2,truth3
+                    for j in range(3):
+                        want = plt.Circle(want_truth[j], 0.3, fill=True, color=cmap(j + 2))
+                        truth = plt.Circle(want_truth[j + 3], 0.2, fill=False, color=cmap(7))
+                        # number = plt.text(want_truth[j+3][0]-0.25, want_truth[j+3][1]-0.2, str(i), color='green')
+                        # ax.add_artist(number)
+                        ax.add_artist(want)
+                        ax.add_artist(truth)
+
+            # 用于生成图例
+            circle1 = plt.Circle((1, 1), 0.3, fill=True, color=cmap(4))
+            circle2 = plt.Circle((1, 1), 0.3, fill=False, color=cmap(7))
 
             # 在图上显示组外agent（用human标识）的起始位置和目标位置
             human_colors = [cmap(i) for i in range(len(self.out_group_agents))]
@@ -326,7 +420,8 @@ class EnvSim(gym.Env):
             ax.add_artist(group_goal)
 
             group_member_template = plt.Circle((0, 0), 0.3, fill=False, color='black')
-            plt.legend([group_member_template, group_goal], ['group_members', 'Goal'], fontsize=14)
+            plt.legend([group_member_template, group_goal, circle1, circle2],
+                       ['ROBOT', 'Goal', 'Want', 'truth'], fontsize=14)
 
             # 添加所有的agent
             agent_positions = [[state[j].position for j in range(self.out_group_agents_num + 3)] for state in

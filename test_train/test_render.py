@@ -15,6 +15,17 @@ ax.set_ylabel('y(m)', fontsize=14)
 show_human_start_goal = True
 
 
+positions = []
+for i in range(-6,6):
+    positions.append([3,i])
+print(positions)
+
+for i,po in enumerate(positions):
+    circle = plt.Circle(positions[i],0.3,fill=True, color=cmap(i))
+    number = plt.text(positions[i][0]-0.25, positions[i][1]-0.2, str(i), color='black')
+    ax.add_artist(circle)
+    ax.add_artist(number)
+
 human_goal = mlines.Line2D([0], [4],color=cmap(2), marker='*', linestyle='None', markersize=16)
 ax.add_artist(human_goal)
 human_start = mlines.Line2D([0], [-4],

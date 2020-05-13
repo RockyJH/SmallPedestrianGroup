@@ -1,7 +1,7 @@
-import argparse  # 参数解析
-import copy  # 用于深克隆
-import logging  # 日志
-import os  # 用于调用操作系统接口
+import argparse     # 参数解析
+import copy         # 深克隆
+import logging      # 日志
+import os           # 用于调用操作系统接口
 import shutil  # 主要用于文件拷贝
 import sys  # 操控运行时环境
 import gym
@@ -34,11 +34,11 @@ def main(args):
         if key == 'y':
             shutil.rmtree(args.output_dir)
         else:
-            localtime = time.asctime( time.localtime(time.time()) )
+            localtime = time.asctime(time.localtime(time.time()))
             tim_sp = localtime.split(' ')
-            t = tim_sp[1]+tim_sp[3]+'-'+tim_sp[4]
+            t = tim_sp[1] + tim_sp[3] + '-' + tim_sp[4]
 
-            args.output_dir = 'data-'+t
+            args.output_dir = 'data-' + t
             make_new_dir = True
 
     if make_new_dir:
@@ -61,11 +61,12 @@ def main(args):
     writer = SummaryWriter(log_dir=args.output_dir)  # writer 是为了输出日志文件
 
     # step6- 配置控制策略
-    policy = RglGroupControl()
+    policy = RglGroupControl() # 空白的网络
     policy.set_device(device)
 
     # step7-环境
     env = gym.make('EnvSim-v1')
+
     # step8-group
     group = Group()
     group.policy = policy
@@ -85,8 +86,8 @@ def main(args):
     checkpoint_interval = 1000
 
     # step10-配置trainer和explorer
-    memory = ReplayMemory(capacity)  # 记忆库  memory 局部变量
-    model = policy.get_model()  # model[graph_model + mlp]
+    memory = ReplayMemory(capacity)  # 记忆库
+    model = policy.get_model()  # model=[graph_model + mlp]
     batch_size = 100  # 批训练的大小
     optimizer = 'Adam'  # 优化器：Adam
     trainer = MPRLTrainer(model, memory, device, policy, writer, batch_size, optimizer, env.out_group_agents_num)
@@ -96,35 +97,34 @@ def main(args):
     policy.set_env(env)
     trainer.set_learning_rate(rl_learning_rate)
 
-    # fill the memory pool with some RL experience
+    # fill the memory pool with some experience
     group.policy.set_epsilon(epsilon_end)
     explorer.run_k_episodes(100, 'train', update_memory=True, episode=0)  # 先run100个回合
     logging.info('Experience set size: %d/%d', len(memory), memory.capacity)
 
-    ##############3
+    # 给target_model一个初始的随机权重。
     trainer.update_target_model(policy.get_model())
-    ##########
+
     # reinforcement learning
     episode = 0
     best_val_reward = -1
     best_val_model = None
     while episode < train_episodes:  # 10000  1万
-        if episode < epsilon_decay:  # 前4000次，epsilon要衰减(0.1-0.4)/4000 * episode
+        if episode < epsilon_decay:  # 前4000次，epsilon衰减(0.1-0.4)/4000 * episode
             epsilon = epsilon_start + (epsilon_end - epsilon_start) / epsilon_decay * episode
         else:
             epsilon = epsilon_end  # 衰减到0.1之后保持不变
-        group.policy.set_epsilon(epsilon)  # 每一步都修改epsilon
+        group.policy.set_epsilon(epsilon)  # 每一回合修改epsilon
 
-        # sample k episodes into memory and optimize over the generated memory
-        # run了一个episode
+        # run 一个episode and sample k episodes into memory and optimize over the generated memory
         explorer.run_k_episodes(1, 'train', update_memory=True, episode=episode)
         explorer.log('train', episode)
 
-        # trainer.optimize_batch(100,n)就是每次出来一个回合的结果就 从记忆里采样100个步骤学习100次一次。
+        # 批训练
         trainer.optimize_batch(train_batches, episode)
         episode += 1
 
-        if episode % target_update_interval == 0:  # target_update_interval ==1000
+        if episode % target_update_interval == 0:  # target_update_interval ==1000 玛德真大
             trainer.update_target_model(model)
         # evaluate the model
         if episode % evaluation_interval == 0:  # evalution_interval == 1000
@@ -135,7 +135,7 @@ def main(args):
                 best_val_reward = reward
                 best_val_model = copy.deepcopy(policy.get_state_dict())
             # test after every evaluation to check how the generalization performance evolves
-            if args.test_after_every_eval:
+            if args.test_after_every_eval: # 设为false
                 explorer.run_k_episodes(500, 'test', episode=episode, print_failure=True)
                 explorer.log('test', episode // evaluation_interval)
 
@@ -149,7 +149,8 @@ def main(args):
         policy.load_state_dict(best_val_model)
         torch.save(best_val_model, os.path.join(args.output_dir, 'best_val.pth'))
         logging.info('Save the best val model with the reward: {}'.format(best_val_reward))
-    explorer.run_k_episodes(env.case_size['test'], 'test', episode=episode, print_failure=True)
+    ## 测试500回合
+    explorer.run_k_episodes(500, 'test', episode=episode, print_failure=True)
 
 
 if __name__ == '__main__':

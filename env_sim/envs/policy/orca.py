@@ -32,44 +32,44 @@ class ORCA(Policy):
         self.time_horizon_obst = 5  # 静态障碍物也是，不过没有用
         self.radius = 0.3  # 半径
         self.max_speed = 1.2  # 最大速度
+        self.time_step = 0.25
         self.sim = None
 
     def predict(self, state, action_space=None, members=None):
-        robot_state = state.robot_state
+        self_state = state.self_state
+        agents_states = state.agents_states
         # params 是一个list
         params = self.neighbor_dist, self.max_neighbors, self.time_horizon, self.time_horizon_obst
-
         # 更新sim
-        if self.sim is not None and self.sim.getNumAgents() != len(state.human_states) + 1:
+        if self.sim is not None and self.sim.getNumAgents() != len(state.agents_states) + 1:
             del self.sim
             self.sim = None
         if self.sim is None:
             self.sim = rvo2.PyRVOSimulator(self.time_step, *params, self.radius, self.max_speed)
-            # 位置, *params, 半径, v_pref, 速度
-            self.sim.addAgent(robot_state.position, *params, robot_state.radius + 0.01 + self.safety_space,
-                              robot_state.v_pref, robot_state.velocity)
-            for human_state in state.human_states:
-                self.sim.addAgent(human_state.position, *params, human_state.radius + 0.01 + self.safety_space,
-                                  self.max_speed, human_state.velocity)  # 自己的期望速度是最大速度
+            # 位置, *params, 半径, v_pref(期望速度大小), 速度
+            self.sim.addAgent(self_state.position, *params, self_state.radius + self.safety_space,
+                              self_state.v_pref, self_state.velocity)
+            for agent_state in state.agents_states:
+                self.sim.addAgent(agent_state.position, *params, agent_state.radius + self.safety_space,
+                                  1, agent_state.velocity)  # 自己的期望速度是最大速度
         else:  # 只是更新sim里的部分属性
-            self.sim.setAgentPosition(0, robot_state.position)
-            self.sim.setAgentVelocity(0, robot_state.velocity)
-            for i, human_state in enumerate(state.human_states):
-                self.sim.setAgentPosition(i + 1, human_state.position)
-                self.sim.setAgentVelocity(i + 1, human_state.velocity)
+            self.sim.setAgentPosition(0, self_state.position)
+            self.sim.setAgentVelocity(0, self_state.velocity)
+            for i, agent_state in enumerate(state.agents_states):
+                self.sim.setAgentPosition(i + 1, agent_state.position)
+                self.sim.setAgentVelocity(i + 1, agent_state.velocity)
 
-        velocity = np.array((robot_state.gx - robot_state.px, robot_state.gy - robot_state.py))
+        velocity = np.array((self_state.gx - self_state.px, self_state.gy - self_state.py))
         speed = np.linalg.norm(velocity)  # 根号下a^2+b^2
-        pref_vel = velocity / speed if speed > 1 else velocity  # 最终pref_vel是一个二维速度向量。
+        pref_vel = velocity / speed if speed > 0.1 else velocity  # 当和目标的距离小于0.1才开始减速
         self.sim.setAgentPrefVelocity(0, tuple(pref_vel))  # 设置机器人期望速度
 
         # 设置其他人期望速度，都设置为0，因为自己观测不到
-        for i, human_state in enumerate(state.human_states):
+        for i, agent_state in enumerate(state.agents_states):
             self.sim.setAgentPrefVelocity(i + 1, (0, 0))  # 其他人的期望速度都是0
 
         self.sim.doStep()
         action = ActionXY(*self.sim.getAgentVelocity(0))
-        self.last_state = state
 
         return action
 

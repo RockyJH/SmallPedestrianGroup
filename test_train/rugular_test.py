@@ -3,12 +3,43 @@ import matplotlib.pyplot as plt
 import os
 import time
 
-localtime = time.asctime( time.localtime(time.time()) )
-tim_sp = localtime.split(' ')
-t = tim_sp[1]+tim_sp[3]+'-'+tim_sp[4]
-print(t)
+
+class Cat:
+    def __init__(self, name):
+        self.name = name
+        self.age = 3
+
+    def jump(self):
+        print('I am ', self.name, 'I am jumping!')
+        return
+
+    def speak(self):
+        print('My name is ', self.name)
 
 
+zoo = list()
+for i in range(5):
+    cat = Cat(str(i))
+    zoo.append(cat)
+
+ketty = Cat('ketty')
+zoo.append(ketty)
+
+for cat in zoo:
+    if cat is not ketty:
+        cat.jump()
+    else:
+        cat.speak()
+
+# positions = []
+
+
+# for i in range(-4,4):
+#     positions.append([0,i])
+# print(positions)
+#
+# s1,s2,s3 = positions[0:3]
+# print ('s1,s2,s3',s1,s2,s3)
 
 
 ''' 测试 速度角

@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.linalg import norm
-from env_sim.envs.policy.orca import CentralizedORCA
-from env_sim.envs.modules.state import ObservableState, FullState
+from env_sim.envs.policy.orca import CentralizedORCA, ORCA
+from env_sim.envs.modules.state import ObservableState, FullState, JointState
 
 """
 1. Agent的部分属性写死, v_pref默认1, radius默认0.3, 控制方式默认 ORCA
@@ -15,6 +15,7 @@ class Agent(object):
         self.v_pref = 1  # 期望速度大小 1
         self.radius = 0.3  # 半径0.3写死
         self.time_step = 0.25  # 时间步长
+        self.policy = ORCA()
 
         self.px = None
         self.py = None  # 位置
@@ -49,6 +50,12 @@ class Agent(object):
     # 获取完整状态--返回：FullState对象
     def get_full_state(self):
         return FullState(self.px, self.py, self.vx, self.vy, self.radius, self.gx, self.gy, self.v_pref)
+
+    def get_action(self, ob):
+        state = JointState(self.get_full_state(), ob)
+        action = self.policy.predict(state)
+        return action
+
     # 执行一个动作并且更新到下一个状态
     def step(self, action):
         pos = self.compute_position(action, self.time_step)
@@ -64,7 +71,7 @@ class Agent(object):
 
     # 是否到达目标位置
     def reached_destination(self):
-        return norm(np.array(self.get_position()) - np.array(self.get_goal_position())) < self.radius
+        return norm(np.array(self.get_position()) - np.array(self.get_goal())) < self.radius
 
     # get/set方法###############################
     def set_position(self, position):

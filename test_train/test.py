@@ -25,7 +25,11 @@ def main(args):
         policy = RglGroupControl()
         policy.load_model(model_weights)
     else:
+        ##############注意此处的设置，仅仅为了本次测试。#####
         policy = RglGroupControl()
+        model_weights = 'best_val.pth'
+        logging.info('load model from:{}'.format(model_weights))
+        policy.load_model(model_weights)
 
     # configure environment
     env = gym.make('EnvSim-v1')
