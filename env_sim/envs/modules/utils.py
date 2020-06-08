@@ -5,7 +5,6 @@ from collections import namedtuple
 点到直线的距离
 '''
 
-
 def point_to_segment_dist(x1, y1, x2, y2, x3, y3):
     """
     计算点(x3,y3) 到直线(x1,y1)----(x2,y2)

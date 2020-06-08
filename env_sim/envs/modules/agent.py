@@ -97,3 +97,6 @@ class Agent(object):
     def set_velocity(self, velocity):
         self.vx = velocity[0]
         self.vy = velocity[1]
+
+    def reached_destination(self):
+        return norm(np.array(self.get_position()) - np.array(self.get_goal())) < self.radius

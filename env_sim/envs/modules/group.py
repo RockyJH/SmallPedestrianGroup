@@ -178,7 +178,7 @@ class Group(object):
             # 动作空间 group_action = (速度，formation)
             for v in extend_velocity:
                 for form in candidate_formations:
-                    if isinstance(v,float):
+                    if isinstance(v, float):
                         print(v)
                     self.action_space.append(GroupAction(v, form))
         return self.action_space
@@ -212,7 +212,7 @@ class Group(object):
     # 获取完整状态
     def get_full_state(self):
         if self.vx == 0 and self.vy == 0:
-            vn,vc = compute_vn_vc(self.gx-self.cx,self.gy-self.cy)
+            vn, vc = compute_vn_vc(self.gx - self.cx, self.gy - self.cy)
         else:
             vn, vc = compute_vn_vc(self.vx, self.vy)
         width = self.get_formation(vn, vc).get_width() / 2
@@ -220,6 +220,55 @@ class Group(object):
 
     # 获取一个动作,输入group的观察值。 group的动作包含一个速度和一个formation
     def get_action(self, ob):
-        state = JointState(self.get_full_state(), ob)
-        action = self.policy.predict(state, self.get_action_space(), self.group_members)
+        # 为了和rvo做对比实验
+        if self.policy.name == 'RvoGroupControl':
+            action = self.policy.predict(ob)
+        elif self.policy.name == 'TvcgGroupControl':
+            state = JointState(self.get_full_state(), ob)
+            action = self.policy.predict(state, self.get_candidate_formations_tvcg(), self.group_members)
+        else:
+            state = JointState(self.get_full_state(), ob)
+            action = self.policy.predict(state, self.get_action_space(), self.group_members)
         return action
+
+    # tvcg 专用方法，候选队形集合
+    def get_candidate_formations_tvcg(self):
+        candidate_formations = []
+        vn, vc = compute_vn_vc(self.gx - self.cx, self.gy - self.cy)  # 以期望速度求局部坐标系的单位向量
+        cur_formation = self.get_formation(vn, vc)  # 获得当前的formation
+
+        cur_relation_horizontal = cur_formation.get_relation_horizontal()  # 水平方向的位置
+        cur_relation_vertical = cur_formation.get_relation_vertical()  # 竖直方向的位置
+        cur_central = (self.cx, self.cy)
+
+        # 对 abreast和v-like的插值
+        for i in range(5):
+            s = 0.25 * i  # i={0,1,2,3,4}
+            form = Formation()
+            p1 = np.array(cur_relation_horizontal[0]) * (1.0 - s) + s * np.array(self.abreast[0])  # 数组形式
+            p2 = np.array(cur_relation_horizontal[1]) * (1.0 - s) + s * np.array(self.abreast[1])
+            p3 = np.array(cur_relation_horizontal[2]) * (1.0 - s) + s * np.array(self.abreast[2])
+            form.set_relation([[p1[0], p1[1]], [p2[0], p2[1]], [p3[0], p3[1]]])
+            form.set_ref_point(cur_central)
+            form.set_vn_vc(vn, vc)
+            candidate_formations.append(form)
+
+            p11 = np.array(cur_relation_horizontal[0]) * (1.0 - s) + s * np.array(self.v_like[0])  # 数组形式
+            p12 = np.array(cur_relation_horizontal[1]) * (1.0 - s) + s * np.array(self.v_like[1])
+            p13 = np.array(cur_relation_horizontal[2]) * (1.0 - s) + s * np.array(self.v_like[2])
+            form.set_relation([[p11[0], p11[1]], [p12[0], p12[1]], [p13[0], p13[1]]])
+            candidate_formations.append(form)
+
+        # 对于竖列的插值-----将当前的relation按照纵队排序。
+        for i in range(5):
+            s = 0.25 * i  # i={0,1,2,3,4}
+            form = Formation()
+            p1 = np.array(cur_relation_vertical[0]) * (1.0 - s) + s * np.array(self.river[0])  # 数组形式
+            p2 = np.array(cur_relation_vertical[1]) * (1.0 - s) + s * np.array(self.river[1])
+            p3 = np.array(cur_relation_vertical[2]) * (1.0 - s) + s * np.array(self.river[2])
+            form.set_relation([[p1[0], p1[1]], [p2[0], p2[1]], [p3[0], p3[1]]])
+            form.set_ref_point(cur_central)
+            form.set_vn_vc(vn, vc)
+            candidate_formations.append(form)
+
+        return candidate_formations

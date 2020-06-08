@@ -22,10 +22,10 @@ class EnvSim(gym.Env):
         # 环境信息
         self.time_limit = 30
         self.time_step = 0.25
-        self.out_group_agents_num = 1
+        self.out_group_agents_num = 6
         self.agent_radius = 0.3
         self.square_width = 20
-        self.circle_radius = 4
+        self.circle_radius = 6
         self.train_val_scenario = 'circle_crossing'
         self.test_scenario = 'circle_crossing'
         self.current_scenario = 'circle_crossing'
@@ -79,6 +79,9 @@ class EnvSim(gym.Env):
             logging.info("[env_sim:] out group Agents' prefer speed random?:{}。".format(self.agent_radius))
         logging.info('[env_sim:] train scene： {} , test scene: {}'.format(self.train_val_scenario, self.test_scenario))
         logging.info('[env_sim:] square width: {}, circle radius: {}'.format(self.square_width, self.circle_radius))
+
+    def set_seed(self, a):
+        np.random.seed(int(a))
 
     def set_group(self, group):
         self.group = group
@@ -134,6 +137,11 @@ class EnvSim(gym.Env):
             agent = self.generate_agent()
             self.out_group_agents.append(agent)
 
+        # 为了测试RvoGroupControl
+        if self.group.policy.name == 'RvoGroupControl':
+            for member in self.group_members:
+                member.set(member.px, member.py, 0, 1, member.px, -member.py)
+
         # get current observation
         ob = self.compute_observation_for(self.group)
         return ob  # group观察到的ob.
@@ -141,161 +149,229 @@ class EnvSim(gym.Env):
     # 返回一个observation 类型：list
     def compute_observation_for(self, cur):
         ob = []
-        if cur == self.group: # 用于为group整体算ob
+        if cur == self.group:  # 用于为group整体算ob
             for agent in self.out_group_agents:
                 ob.append(agent.get_observable_state())
-        else: # 为单个agent计算ob
+        else:  # 为单个agent计算ob
             for other_agent in self.out_group_agents + self.group_members:
-                if other_agent is not cur: # 计算其他人的ob
+                if other_agent is not cur:  # 计算其他人的ob
                     ob.append(other_agent.get_observable_state())
         return ob
 
     # return ob, reward, done, info
     def step(self, group_action, update=True):  # action 是group的action
-        g_vx, g_vy = group_action.v
-        formation = group_action.formation
-        old_p = formation.get_ref_point()
-        p = old_p[0] + g_vx * self.time_step, old_p[1] + g_vy * self.time_step
-        relation = formation.get_relation_horizontal()  # [[a,b],[a,b],[a,b]]
-        vn, vc = formation.get_vn_vc()  # vn = (x,y) vc = (x,y)
+        if group_action is None:
+            agent_states = [agent.get_full_state() for agent in self.group_members + self.out_group_agents]
+            all_agents_actions = self.centralized_planner.predict(agent_states)
 
-        # print(
-        #     '%.1f-th' % (self.global_time / self.time_step + 1),
-        #     '即将从位置:({:.2f},{:.2f}) '.format(old_p[0], old_p[1]),
-        #     '采取速度:({:.2f},{:.2f}) '.format(g_vx,g_vy),
-        #     '方向{:.2f}pi '.format(np.math.atan2(g_vy,g_vx)/np.math.pi),
-        #     '新位置:({:.2f},{:.2f})'.format(p[0],p[1])
-        # )
+            collision = False
+            # 检测每个group_member和组外agent是否碰撞，组外agent之间互碰不管
+            # 测试rvo的时候，不进行彭汉族昂检测，否则人数达到6的时候碰撞率已经高到不能测试
+            # for j, member in enumerate(self.group_members):
+            #     member_action = all_agents_actions[j]
+            #     for i, agent in enumerate(self.out_group_agents):
+            #         px = agent.px - member.px
+            #         py = agent.py - member.py
+            #         vx = agent.vx - member_action.vx
+            #         vy = agent.vy - member_action.vy
+            #         ex = px + vx * self.time_step
+            #         ey = py + vy * self.time_step
+            #         # member 和 组外agent之间的最近距离
+            #         closest_dist = point_to_segment_dist(px, py, ex, ey, 0, 0) - 2 * agent.radius
+            #         if closest_dist < 0:
+            #             collision = True
+            #             break
 
-        # 获取新的位置,np_array的形式
-        new_p1 = np.array(p) + relation[0][0] * np.array(vn) + relation[0][1] * np.array(vc)
-        new_p2 = np.array(p) + relation[1][0] * np.array(vn) + relation[1][1] * np.array(vc)
-        new_p3 = np.array(p) + relation[2][0] * np.array(vn) + relation[2][1] * np.array(vc)
-        new_p = [new_p1, new_p2, new_p3]  # list里面是数组类型的新位置
+            # 所有agent都执行一步动作，即便碰撞，碰撞就停了
+            for i, agent in enumerate(self.group_members + self.out_group_agents):
+                agent.step(all_agents_actions[i])
 
-        # 一对一分配
-        old_p1 = np.array(self.group_members[0].get_position())
-        old_p2 = np.array(self.group_members[1].get_position())
-        old_p3 = np.array(self.group_members[2].get_position())
-        old_p = [old_p1, old_p2, old_p3]
-
-        all_orders = [[0, 1, 2], [0, 2, 1],
-                      [1, 0, 2], [1, 2, 0],
-                      [2, 0, 1], [2, 1, 0]]
-        min_dis_index = 0
-        min_dis = float('inf')
-
-        for i, order in enumerate(all_orders):
-            dis = np.linalg.norm(new_p[order[0]] - old_p[0]) \
-                  + np.linalg.norm(new_p[order[1]] - old_p[1]) \
-                  + np.linalg.norm(new_p[order[2]] - old_p[2])
-            if dis < min_dis:
-                min_dis = dis
-                min_dis_index = i
-
-        final_order = all_orders[min_dis_index]
-        np1 = (new_p[final_order[0]][0], new_p[final_order[0]][1])
-        np2 = (new_p[final_order[1]][0], new_p[final_order[1]][1])
-        np3 = (new_p[final_order[2]][0], new_p[final_order[2]][1])
-
-        self.group_members[0].set_goal_position(np1)
-        self.group_members[1].set_goal_position(np2)
-        self.group_members[2].set_goal_position(np3)
-
-        # # 所有agents的动作---使用centralized ORCA
-        # all_agents_state = [agent.get_full_state() for agent in self.group_members + self.out_group_agents]
-        # all_agents_actions = self.centralized_planner.predict(all_agents_state)
-
-        all_agents_actions = []
-        for agent in (self.group_members + self.out_group_agents):
-            ob = self.compute_observation_for(agent)
-            action = agent.get_action(ob)
-            all_agents_actions.append(action)
-
-        collision = False
-        # 检测每个group_member和组外agent是否碰撞，组外agent之间互碰不管
-        for j, member in enumerate(self.group_members):
-            member_action = all_agents_actions[j]
-            for i, agent in enumerate(self.out_group_agents):
-                px = agent.px - member.px
-                py = agent.py - member.py
-                vx = agent.vx - member_action.vx
-                vy = agent.vy - member_action.vy
-                ex = px + vx * self.time_step
-                ey = py + vy * self.time_step
-                # member 和 组外agent之间的最近距离
-                closest_dist = point_to_segment_dist(px, py, ex, ey, 0, 0) - 2 * agent.radius
-                if closest_dist < 0:
-                    collision = True
+            reaching_goal = True
+            for member in self.group_members:
+                if member.reached_destination() == False:
+                    reaching_goal = False
                     break
 
-        # 所有agent都执行一步动作，即便碰撞，碰撞就停了
-        for i, agent in enumerate(self.group_members + self.out_group_agents):
-            agent.step(all_agents_actions[i])
+            if reaching_goal:
+                done = True
+                info = ReachGoal()
+                logging.info('[env_sim:] reaching goal!')
+                reward = 1
+            elif self.global_time >= self.time_limit:  # 在限制时间内到不了就拉到
+                reward = 0
+                done = True
+                info = Timeout()
+                logging.info("[env_sim:] time out.")
+            elif collision:  # 碰撞给惩罚 gameOver
+                reward = self.collision_penalty
+                done = True
+                info = Collision()
+                logging.info("[env_sim:] collided on {} steps.".format(round(self.global_time / self.time_step) + 4))
+            else:  # 其他就不奖不罚
+                reward = 0
+                done = False
+                info = Nothing()
 
-        # group更新中心点和组速度
-        self.group.update(g_vx, g_vy)
+            ob = None
+            if update:
+                self.global_time += self.time_step  # 到达目标时间
+                # 每一步都把这一步所有人的状态存，前三个是 group member
+                self.states.append([agent.get_full_state() for agent in self.group_members + self.out_group_agents])
+                # self.rewards.append(reward)
 
-        end_position = np.array((self.group.cx, self.group.cy))  # 执行完这一步的位置
-        reaching_goal = norm(end_position - np.array(self.group.get_goal())) < self.k3 * self.agent_radius
+                # 记录想去位置和orca导致的真实位置
+                truth0 = self.group_members[0].get_position()
+                truth1 = self.group_members[1].get_position()
+                truth2 = self.group_members[2].get_position()
 
-        if self.global_time >= self.time_limit:  # 在限制时间内到不了就拉到
-            reward = 0
-            done = True
-            info = Timeout()
-            logging.info("[env_sim:] time out.")
-        elif collision:  # 碰撞给惩罚 gameOver
-            reward = self.collision_penalty
-            done = True
-            info = Collision()
-            logging.info("[env_sim:] collided on {} steps.".format(round(self.global_time / self.time_step) + 4))
-        elif reaching_goal:  # 到达目的给奖励 gameOver
-            reward = self.success_reward
-            done = True
-            info = ReachGoal()
-            logging.info("[env_sim:]： successfully reaching the goal!")
-        else:  # 其他就不奖不罚
-            reward = 0
-            done = False
-            info = Nothing()
-        # action_reward
-        des_v = np.array((self.group.gx - self.group.cx, self.group.gy - self.group.cy))
-        des_s = np.linalg.norm(des_v)
-        des_v = des_v / des_s
-        cur_velocity = (g_vx, g_vy)
-        v_deviation = np.linalg.norm(np.array(cur_velocity) - des_v) / 2
-        velocity_deviation_reward = self.k1 * (0.5 - v_deviation)
+                # self.robot_actions.append(action)
+                # compute the observation
+            return ob, reward, done, info
+        else:  # ----rgl的执行流
+            g_vx, g_vy = group_action.v
+            formation = group_action.formation
+            old_p = formation.get_ref_point()
+            p = old_p[0] + g_vx * self.time_step, old_p[1] + g_vy * self.time_step
+            relation = formation.get_relation_horizontal()  # [[a,b],[a,b],[a,b]]
+            vn, vc = formation.get_vn_vc()  # vn = (x,y) vc = (x,y)
 
-        cur_formation = group_action.formation
-        cur_width = cur_formation.get_width()
-        form_deviation = np.math.fabs(8 * self.agent_radius - cur_width) / (6 * self.agent_radius)
-        form_deviation_reward = self.k2 * (0.5 - form_deviation)
-        reward = reward + velocity_deviation_reward + form_deviation_reward
-        # print('{:.0f}th v_d:{:.5f}  r:{:.5f}  f_d:{:.5f}  f_r:{:.5f}  all:{:.5f}'.format(
-        #     self.global_time / self.time_step,
-        #     v_deviation, velocity_deviation_reward,
-        #     form_deviation, form_deviation_reward,
-        #     reward)
-        # )
+            # print(
+            #     '%.1f-th' % (self.global_time / self.time_step + 1),
+            #     '即将从位置:({:.2f},{:.2f}) '.format(old_p[0], old_p[1]),
+            #     '采取速度:({:.2f},{:.2f}) '.format(g_vx,g_vy),
+            #     '方向{:.2f}pi '.format(np.math.atan2(g_vy,g_vx)/np.math.pi),
+            #     '新位置:({:.2f},{:.2f})'.format(p[0],p[1])
+            # )
 
-        ob = None
-        if update:
-            self.global_time += self.time_step  # 到达目标时间
-            # 每一步都把这一步所有人的状态存，前三个是 group member
-            self.states.append([agent.get_full_state() for agent in self.group_members + self.out_group_agents])
-            # self.rewards.append(reward)
+            # 获取新的位置,np_array的形式
+            new_p1 = np.array(p) + relation[0][0] * np.array(vn) + relation[0][1] * np.array(vc)
+            new_p2 = np.array(p) + relation[1][0] * np.array(vn) + relation[1][1] * np.array(vc)
+            new_p3 = np.array(p) + relation[2][0] * np.array(vn) + relation[2][1] * np.array(vc)
+            new_p = [new_p1, new_p2, new_p3]  # list里面是数组类型的新位置
 
-            # 记录想去位置和orca导致的真实位置
-            truth0 = self.group_members[0].get_position()
-            truth1 = self.group_members[1].get_position()
-            truth2 = self.group_members[2].get_position()
-            self.want_truth.append([new_p1, new_p2, new_p3, truth0, truth1, truth2])
+            # 一对一分配
+            old_p1 = np.array(self.group_members[0].get_position())
+            old_p2 = np.array(self.group_members[1].get_position())
+            old_p3 = np.array(self.group_members[2].get_position())
+            old_p = [old_p1, old_p2, old_p3]
 
-            # self.robot_actions.append(action)
-            # compute the observation
+            all_orders = [[0, 1, 2], [0, 2, 1],
+                          [1, 0, 2], [1, 2, 0],
+                          [2, 0, 1], [2, 1, 0]]
+            min_dis_index = 0
+            min_dis = float('inf')
 
-            ob = self.compute_observation_for(self.group)
-        return ob, reward, done, info
+            for i, order in enumerate(all_orders):
+                dis = np.linalg.norm(new_p[order[0]] - old_p[0]) \
+                      + np.linalg.norm(new_p[order[1]] - old_p[1]) \
+                      + np.linalg.norm(new_p[order[2]] - old_p[2])
+                if dis < min_dis:
+                    min_dis = dis
+                    min_dis_index = i
+
+            final_order = all_orders[min_dis_index]
+            np1 = (new_p[final_order[0]][0], new_p[final_order[0]][1])
+            np2 = (new_p[final_order[1]][0], new_p[final_order[1]][1])
+            np3 = (new_p[final_order[2]][0], new_p[final_order[2]][1])
+
+            self.group_members[0].set_goal_position(np1)
+            self.group_members[1].set_goal_position(np2)
+            self.group_members[2].set_goal_position(np3)
+
+            # # 所有agents的动作---使用centralized ORCA
+            # all_agents_state = [agent.get_full_state() for agent in self.group_members + self.out_group_agents]
+            # all_agents_actions = self.centralized_planner.predict(all_agents_state)
+
+            all_agents_actions = []
+            for agent in (self.group_members + self.out_group_agents):
+                ob = self.compute_observation_for(agent)
+                action = agent.get_action(ob)
+                all_agents_actions.append(action)
+
+            collision = False
+            # 检测每个group_member和组外agent是否碰撞，组外agent之间互碰不管
+            for j, member in enumerate(self.group_members):
+                member_action = all_agents_actions[j]
+                for i, agent in enumerate(self.out_group_agents):
+                    px = agent.px - member.px
+                    py = agent.py - member.py
+                    vx = agent.vx - member_action.vx
+                    vy = agent.vy - member_action.vy
+                    ex = px + vx * self.time_step
+                    ey = py + vy * self.time_step
+                    # member 和 组外agent之间的最近距离
+                    closest_dist = point_to_segment_dist(px, py, ex, ey, 0, 0) - 2 * agent.radius
+                    if closest_dist < 0:
+                        collision = True
+                        break
+
+            # 所有agent都执行一步动作，即便碰撞，碰撞就停了
+            for i, agent in enumerate(self.group_members + self.out_group_agents):
+                agent.step(all_agents_actions[i])
+
+            # group更新中心点和组速度
+            self.group.update(g_vx, g_vy)
+
+            end_position = np.array((self.group.cx, self.group.cy))  # 执行完这一步的位置
+            reaching_goal = norm(end_position - np.array(self.group.get_goal())) < self.k3 * self.agent_radius
+
+            if self.global_time >= self.time_limit:  # 在限制时间内到不了就拉到
+                reward = 0
+                done = True
+                info = Timeout()
+                logging.info("[env_sim:] time out.")
+            elif collision:  # 碰撞给惩罚 gameOver
+                reward = self.collision_penalty
+                done = True
+                info = Collision()
+                logging.info("[env_sim:] collided on {} steps.".format(round(self.global_time / self.time_step) + 4))
+            elif reaching_goal:  # 到达目的给奖励 gameOver
+                reward = self.success_reward
+                done = True
+                info = ReachGoal()
+                logging.info("[env_sim:]： successfully reaching the goal!")
+            else:  # 其他就不奖不罚
+                reward = 0
+                done = False
+                info = Nothing()
+            # action_reward
+            des_v = np.array((self.group.gx - self.group.cx, self.group.gy - self.group.cy))
+            des_s = np.linalg.norm(des_v)
+            des_v = des_v / des_s
+            cur_velocity = (g_vx, g_vy)
+            v_deviation = np.linalg.norm(np.array(cur_velocity) - des_v) / 2
+            velocity_deviation_reward = self.k1 * (0.5 - v_deviation)
+
+            cur_formation = group_action.formation
+            cur_width = cur_formation.get_width()
+            form_deviation = np.math.fabs(8 * self.agent_radius - cur_width) / (6 * self.agent_radius)
+            form_deviation_reward = self.k2 * (0.5 - form_deviation)
+            reward = reward + velocity_deviation_reward + form_deviation_reward
+            # print('{:.0f}th v_d:{:.5f}  r:{:.5f}  f_d:{:.5f}  f_r:{:.5f}  all:{:.5f}'.format(
+            #     self.global_time / self.time_step,
+            #     v_deviation, velocity_deviation_reward,
+            #     form_deviation, form_deviation_reward,
+            #     reward)
+            # )
+
+            ob = None
+            if update:
+                self.global_time += self.time_step  # 到达目标时间
+                # 每一步都把这一步所有人的状态存，前三个是 group member
+                self.states.append([agent.get_full_state() for agent in self.group_members + self.out_group_agents])
+                # self.rewards.append(reward)
+
+                # 记录想去位置和orca导致的真实位置
+                truth0 = self.group_members[0].get_position()
+                truth1 = self.group_members[1].get_position()
+                truth2 = self.group_members[2].get_position()
+                self.want_truth.append([new_p1, new_p2, new_p3, truth0, truth1, truth2])
+
+                # self.robot_actions.append(action)
+                # compute the observation
+
+                ob = self.compute_observation_for(self.group)
+            return ob, reward, done, info
 
     def one_step_lookahead(self, action):
         return self.step(action, update=False)
@@ -314,63 +390,144 @@ class EnvSim(gym.Env):
         display_numbers = True  # 展示数字
 
         if mode == 'traj':
-            fig, ax = plt.subplots(figsize=(7, 7))
-            ax.tick_params(labelsize=16)
-            ax.set_xlim(-5, 5)
-            ax.set_ylim(-5, 5)
-            ax.set_xlabel('x(m)', fontsize=16)
-            ax.set_ylabel('y(m)', fontsize=16)
+            count = len(self.states)
+            pics = count // 4
+            pic_steps = []
+            while count > 0:
+                pic_steps.append(count)
+                count -= pics
 
-            # add human start positions and goals
-            human_colors = [cmap(i) for i in range(len(self.humans))]
-            for i in range(len(self.humans)):
-                human = self.humans[i]
-                human_goal = mlines.Line2D([human.get_goal_position()[0]], [human.get_goal_position()[1]],
-                                           color=human_colors[i],
-                                           marker='*', linestyle='None', markersize=15)
-                ax.add_artist(human_goal)
-                human_start = mlines.Line2D([human.get_start_position()[0]], [human.get_start_position()[1]],
-                                            color=human_colors[i],
-                                            marker='o', linestyle='None', markersize=15)
-                ax.add_artist(human_start)
+            for pic_step in pic_steps[::-1]:
+                fig, ax = plt.subplots(figsize=(8, 8))
+                plt.suptitle('Track', fontsize=16)
+                ax.tick_params(labelsize=16)
+                ax.set_xlim(-9, 9)
+                ax.set_ylim(-9, 9)
+                ax.set_xlabel('x(m)', fontsize=16)
+                ax.set_ylabel('y(m)', fontsize=16)
 
-            robot_positions = [self.states[i][0].position for i in range(len(self.states))]
-            human_positions = [[self.states[i][1][j].position for j in range(len(self.humans))]
-                               for i in range(len(self.states))]
+                # add human start positions and goals
+                human_colors = [cmap(i) for i in range(len(self.out_group_agents))]
+                for i in range(len(self.out_group_agents)):
+                    human = self.out_group_agents[i]
+                    human_goal = mlines.Line2D([human.get_goal()[0]], [human.get_goal()[1]],
+                                               color=human_colors[i],
+                                               marker='*', linestyle='None', markersize=15)
+                    ax.add_artist(human_goal)
+                    human_start = mlines.Line2D([human.get_start_position()[0]], [human.get_start_position()[1]],
+                                                color=human_colors[i],
+                                                marker='o', linestyle='None', markersize=8)
+                    ax.add_artist(human_start)
 
-            for k in range(len(self.states)):
-                if k % 4 == 0 or k == len(self.states) - 1:
-                    robot = plt.Circle(robot_positions[k], self.robot.radius, fill=False, color=robot_color)
-                    humans = [plt.Circle(human_positions[k][i], self.humans[i].radius, fill=False, color=cmap(i))
-                              for i in range(len(self.humans))]
-                    ax.add_artist(robot)
-                    for human in humans:
-                        ax.add_artist(human)
+                # add group start and goal
+                group_goal = mlines.Line2D([0], [self.circle_radius], color='black', marker='*', linestyle='None',
+                                           markersize=16)
+                ax.add_artist(group_goal)
+                for member in self.group_members:
+                    member_start = mlines.Line2D([member.get_start_position()[0]], [member.get_start_position()[1]],
+                                                 color='black',
+                                                 marker='o', linestyle='None', markersize=8)
+                    ax.add_artist(member_start)
 
-                # add time annotation
-                global_time = k * self.time_step
-                if global_time % 4 == 0 or k == len(self.states) - 1:
-                    agents = humans + [robot]
-                    times = [plt.text(agents[i].center[0] - x_offset, agents[i].center[1] - y_offset,
-                                      '{:.1f}'.format(global_time),
-                                      color='black', fontsize=14) for i in range(self.human_num + 1)]
-                    for time in times:
-                        ax.add_artist(time)
-                if k != 0:
-                    nav_direction = plt.Line2D((self.states[k - 1][0].px, self.states[k][0].px),
-                                               (self.states[k - 1][0].py, self.states[k][0].py),
-                                               color=robot_color, ls='solid')
-                    human_directions = [plt.Line2D((self.states[k - 1][1][i].px, self.states[k][1][i].px),
-                                                   (self.states[k - 1][1][i].py, self.states[k][1][i].py),
-                                                   color=cmap(i), ls='solid')
-                                        for i in range(self.human_num)]
-                    ax.add_artist(nav_direction)
-                    for human_direction in human_directions:
-                        ax.add_artist(human_direction)
-            plt.legend([robot], ['Robot'], fontsize=16)
-            plt.show()
+                agent_position = [
+                    [self.states[i][j].position for j in range(len(self.group_members + self.out_group_agents))]
+                    for i in range(pic_step)]
 
-        if mode == 'video':
+                for k in range(pic_step):  # k是状态的索引
+                    # 先画直线：
+                    if k != 0:
+                        human_directions = [plt.Line2D((agent_position[k - 1][i][0], agent_position[k][i][0]),
+                                                       (agent_position[k - 1][i][1], agent_position[k][i][1]),
+                                                       color='grey' if i < 3 else human_colors[i - 3], linestyle=':')
+                                            for i in range(len(self.group_members + self.out_group_agents))]
+                        for d in human_directions:
+                            ax.add_artist(d)
+                    # 画圈圈
+                    if k == pic_step - 1:  # 最后一个状态填充
+                        for n, agent in enumerate(self.group_members + self.out_group_agents):
+                            agent = plt.Circle(agent_position[k][n], self.agent_radius, fill=True,
+                                               color='black' if n < 3 else human_colors[n - 3])
+                            ax.add_artist(agent)
+                            number = plt.text(agent.center[0]-0.1, agent.center[1]-0.1, str(n),
+                                              color='white')
+                            ax.add_artist(number)
+
+                    elif k % 4 == 0 or k == len(self.states) - 1:  # 每4个状态
+                        for n, agent in enumerate(self.group_members + self.out_group_agents):
+                            agent = plt.Circle(agent_position[k][n], self.agent_radius, fill=False,
+                                               color='black' if n < 3 else human_colors[n - 3])
+                            ax.add_artist(agent)
+                    # # add time annotation
+                    # global_time = k * self.time_step
+                    # if global_time % 4 == 0 or k == len(self.states) - 1: # 每4秒
+                    #     times = [plt.text(agent_position[k][i][0] - x_offset, agent_position[k][i][1] - y_offset,
+                    #                       '{:.1f}'.format(global_time),
+                    #                       color='black', fontsize=14) for i in
+                    #              range(len(self.out_group_agents + self.group_members))]
+                    #     for time in times:
+                    #         ax.add_artist(time)
+                robot = plt.Circle([0, 0], self.agent_radius, fill=False,
+                                   color='black')
+                goal = mlines.Line2D([0], [0], color='black', marker='*', linestyle='None', markersize=16)
+                plt.legend([robot, goal], ['Robot', 'Goal'], fontsize=16)
+                plt.show()
+
+            # fig, ax = plt.subplots(figsize=(8, 8))
+            # ax.tick_params(labelsize=16)
+            # ax.set_xlim(-10, 10)
+            # ax.set_ylim(-10, 10)
+            # ax.set_xlabel('x(m)', fontsize=16)
+            # ax.set_ylabel('y(m)', fontsize=16)
+            #
+            # # add human start positions and goals
+            # human_colors = [cmap(i) for i in range(len(self.out_group_agents))]
+            # for i in range(len(self.out_group_agents)):
+            #     human = self.out_group_agents[i]
+            #     human_goal = mlines.Line2D([human.get_goal()[0]], [human.get_goal()[1]],
+            #                                color=human_colors[i],
+            #                                marker='*', linestyle='None', markersize=15)
+            #     ax.add_artist(human_goal)
+            #     human_start = mlines.Line2D([human.get_start_position()[0]], [human.get_start_position()[1]],
+            #                                 color=human_colors[i],
+            #                                 marker='o', linestyle='None', markersize=15)
+            #     ax.add_artist(human_start)
+            #
+            # agent_position = [
+            #     [self.states[i][j].position for j in range(len(self.group_members + self.out_group_agents))]
+            #     for i in range(len(self.states))]
+            #
+            # for k in range(len(self.states)):  # k是状态的索引
+            #     if k % 4 == 0 or k == len(self.states) - 1:  # 每4个状态
+            #         if k % 16 == 0:
+            #             for n, agent in enumerate(self.out_group_agents + self.out_group_agents):
+            #                 agent = plt.Circle(agent_position[k][n], self.agent_radius, fill=True,
+            #                                    color='black' if n < 3 else human_colors[n - 3])
+            #                 ax.add_artist(agent)
+            #         else:
+            #             for n, agent in enumerate(self.out_group_agents + self.out_group_agents):
+            #                 agent = plt.Circle(agent_position[k][n], self.agent_radius, fill=False,
+            #                                    color='black' if n < 3 else human_colors[n - 3])
+            #                 ax.add_artist(agent)
+            #     # # add time annotation
+            #     # global_time = k * self.time_step
+            #     # if global_time % 4 == 0 or k == len(self.states) - 1: # 每4秒
+            #     #     times = [plt.text(agent_position[k][i][0] - x_offset, agent_position[k][i][1] - y_offset,
+            #     #                       '{:.1f}'.format(global_time),
+            #     #                       color='black', fontsize=14) for i in
+            #     #              range(len(self.out_group_agents + self.group_members))]
+            #     #     for time in times:
+            #     #         ax.add_artist(time)
+            #     if k != 0:
+            #         human_directions = [plt.Line2D((agent_position[k - 1][i][0], agent_position[k][i][0]),
+            #                                        (agent_position[k - 1][i][1], agent_position[k][i][1]),
+            #                                        color='black' if i < 3 else human_colors[i - 3], ls='solid')
+            #                             for i in range(len(self.group_members + self.out_group_agents))]
+            #         for d in human_directions:
+            #             ax.add_artist(d)
+            # # plt.legend([robot], ['Robot'], fontsize=16)
+            # plt.show()
+
+        elif mode == 'video':
             fig, ax = plt.subplots(figsize=(7, 7))  # 面板大小7，7 fig 表示一窗口 ax 是一个框
             ax.tick_params(labelsize=12)  # 坐标字体大小
             ax.set_xlim(-11, 11)  # -11，11  # 坐标的范围   可用于控制画面比例
@@ -378,18 +535,17 @@ class EnvSim(gym.Env):
             ax.set_xlabel('x(m)', fontsize=14)
             ax.set_ylabel('y(m)', fontsize=14)
             show_human_start_goal = True
-
             ########画静态的轨迹##############
-            for i, want_truth in enumerate(self.want_truth):
-                if i % 5 == 0 or i == len(self.want_truth) - 1:
-                    # want_truth === want1,want2,want3,truth1,truth2,truth3
-                    for j in range(3):
-                        want = plt.Circle(want_truth[j], 0.3, fill=True, color=cmap(j + 2))
-                        truth = plt.Circle(want_truth[j + 3], 0.2, fill=False, color=cmap(7))
-                        # number = plt.text(want_truth[j+3][0]-0.25, want_truth[j+3][1]-0.2, str(i), color='green')
-                        # ax.add_artist(number)
-                        ax.add_artist(want)
-                        ax.add_artist(truth)
+            # for i, want_truth in enumerate(self.want_truth):
+            #     if i % 5 == 0 or i == len(self.want_truth) - 1:
+            #         # want_truth === want1,want2,want3,truth1,truth2,truth3
+            #         for j in range(3):
+            #             want = plt.Circle(want_truth[j], 0.3, fill=True, color=cmap(4))
+            #             truth = plt.Circle(want_truth[j + 3], 0.1, fill=False, color=cmap(7))
+            #             # number = plt.text(want_truth[j+3][0]-0.25, want_truth[j+3][1]-0.2, str(i), color='green')
+            #             # ax.add_artist(number)
+            #             ax.add_artist(want)
+            #             ax.add_artist(truth)
 
             # 用于生成图例
             circle1 = plt.Circle((1, 1), 0.3, fill=True, color=cmap(4))
@@ -416,12 +572,15 @@ class EnvSim(gym.Env):
                 ax.add_artist(agent_start)
 
             # 手动添加group的goal
-            group_goal = mlines.Line2D([0], [4], color='black', marker='*', linestyle='None', markersize=16)
+            group_goal = mlines.Line2D([0], [self.circle_radius], color='black', marker='*', linestyle='None',
+                                       markersize=16)
             ax.add_artist(group_goal)
 
             group_member_template = plt.Circle((0, 0), 0.3, fill=False, color='black')
-            plt.legend([group_member_template, group_goal, circle1, circle2],
-                       ['ROBOT', 'Goal', 'Want', 'truth'], fontsize=14)
+            # plt.legend([group_member_template, group_goal, circle1, circle2],
+            #            ['ROBOT', 'Goal', 'Want', 'truth'], fontsize=14)
+            plt.legend([group_member_template, group_goal],
+                       ['ROBOT', 'Goal'], fontsize=14)
 
             # 添加所有的agent
             agent_positions = [[state[j].position for j in range(self.out_group_agents_num + 3)] for state in
@@ -500,6 +659,8 @@ class EnvSim(gym.Env):
 
                 time.set_text('Time: {:.2f}'.format(frame_num * self.time_step))
                 step.set_text('Step: {:}'.format(frame_num))
+
+                ########画静态的轨迹##############
 
             def plot_value_heatmap():
                 if self.robot.kinematics != 'holonomic':

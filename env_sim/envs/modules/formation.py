@@ -61,6 +61,7 @@ class Formation(object):
         else:
             return self.sort_in_order(self, 'river')
 
+
     @staticmethod
     def sort_in_order(self, order):
         if order == 'abreast':
@@ -68,4 +69,3 @@ class Formation(object):
         elif order == 'river':
             self.relation = sorted(self.relation, key=lambda x: x[0])[::-1]  # 按照元素的第一维降序。
         return self.relation
-

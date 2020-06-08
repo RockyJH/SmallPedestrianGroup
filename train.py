@@ -1,7 +1,7 @@
-import argparse     # 参数解析
-import copy         # 深克隆
-import logging      # 日志
-import os           # 用于调用操作系统接口
+import argparse  # 参数解析
+import copy  # 深克隆
+import logging  # 日志
+import os  # 用于调用操作系统接口
 import shutil  # 主要用于文件拷贝
 import sys  # 操控运行时环境
 import gym
@@ -61,7 +61,11 @@ def main(args):
     writer = SummaryWriter(log_dir=args.output_dir)  # writer 是为了输出日志文件
 
     # step6- 配置控制策略
-    policy = RglGroupControl() # 空白的网络
+    policy = RglGroupControl()  # 空白的网络
+    model_weights = 'data/best_val.pth'
+    logging.info('load model from:{}'.format(model_weights))
+    policy.load_model(model_weights)
+
     policy.set_device(device)
 
     # step7-环境
@@ -76,7 +80,7 @@ def main(args):
     # step9-读取训练的参数
     rl_learning_rate = 0.001
     train_batches = 100
-    train_episodes = 10000
+    train_episodes = 10000 #
     target_update_interval = 1000
     evaluation_interval = 1000
     capacity = 100000
@@ -135,7 +139,7 @@ def main(args):
                 best_val_reward = reward
                 best_val_model = copy.deepcopy(policy.get_state_dict())
             # test after every evaluation to check how the generalization performance evolves
-            if args.test_after_every_eval: # 设为false
+            if args.test_after_every_eval:  # 设为false
                 explorer.run_k_episodes(500, 'test', episode=episode, print_failure=True)
                 explorer.log('test', episode // evaluation_interval)
 

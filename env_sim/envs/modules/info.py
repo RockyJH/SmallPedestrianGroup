@@ -6,7 +6,7 @@ class Timeout(object):
         pass
 
     def __str__(self):
-        return '超过时间限度而未到达！'
+        return 'Time out!'
 
 
 class ReachGoal(object):
@@ -14,7 +14,7 @@ class ReachGoal(object):
         pass
 
     def __str__(self):
-        return '到达目的地！'
+        return 'Reached the goal!'
 
 
 class Collision(object):
@@ -22,7 +22,7 @@ class Collision(object):
         pass
 
     def __str__(self):
-        return '发生碰撞！'
+        return 'Collided!'
 
 
 class Nothing(object):

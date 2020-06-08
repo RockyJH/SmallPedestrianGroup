@@ -1,48 +1,7 @@
 import math
 import matplotlib.pyplot as plt
-import os
-import time
 
-
-class Cat:
-    def __init__(self, name):
-        self.name = name
-        self.age = 3
-
-    def jump(self):
-        print('I am ', self.name, 'I am jumping!')
-        return
-
-    def speak(self):
-        print('My name is ', self.name)
-
-
-zoo = list()
-for i in range(5):
-    cat = Cat(str(i))
-    zoo.append(cat)
-
-ketty = Cat('ketty')
-zoo.append(ketty)
-
-for cat in zoo:
-    if cat is not ketty:
-        cat.jump()
-    else:
-        cat.speak()
-
-# positions = []
-
-
-# for i in range(-4,4):
-#     positions.append([0,i])
-# print(positions)
-#
-# s1,s2,s3 = positions[0:3]
-# print ('s1,s2,s3',s1,s2,s3)
-
-
-''' 测试 速度角
+# 测试 速度角
 vx = 0
 vy = 0
 gx = -4
@@ -71,4 +30,3 @@ if vx == 0 and vy == 0:
         plt.plot([p1[0], p2[0]], [p1[1], p2[1]])  # 简单理解就是：先写x的取值范围，再写y的取值范围
 
 plt.show()
-'''
