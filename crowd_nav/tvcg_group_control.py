@@ -6,6 +6,7 @@ from env_sim.envs.modules.utils import normalize_vector, compute_vn_vc
 from env_sim.envs.policy.policy import Policy
 from crowd_nav.modules.box import Box
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class TvcgGroupControl(Policy):
@@ -22,7 +23,9 @@ class TvcgGroupControl(Policy):
         self.delta_max = np.pi / 2
         self.k1 = 1
         self.k2 = 1
-        self.k3 = 0.05
+        self.k3 = 0.5
+
+        self.predict_count = 0
 
     def set_phase(self, phase):
         self.phase = phase
@@ -32,36 +35,42 @@ class TvcgGroupControl(Policy):
         cost = float('inf')
         formation_selected = None
         v_selected = None
-
-        # step1 在gourp类中已经解决
-
+        '''step1 在gourp类中已经解决,所有候选队形是在 以群组的期望速度下建立的。
+        候选队形的长度是15，即15个候选队形。
+        '''
         agents_state = joint_state.agents_states
         group_state = joint_state.self_state
         candidate_formation = candidate_formation
         group_members = group_members
 
+        '''step2 获得每个队形的个人空间，个人空间都是在以期望速度方向为正方向的局部坐标系里建立。
+        然后做碰撞扫描，获得最小碰撞时间，进而确定速度方向。和大小
         '''
-        step2 获得每个队形的个人空间，个人空间是 在局部系下的宽度 X agent_radius
-        '''
-        for formation in candidate_formation:
-            x, y, w, h = self.compute_formation_xywh(formation)
-            formation_box = Box(x, y, w, h, group_state.vx, group_state.vy)
 
-            # 局部坐标系下的vn,vc
-            vn, vc = compute_vn_vc(group_state.vx, group_state.vy)
+        ''''''''''''''''''
+        self.predict_count += 1
+        # print('-------',self.predict_count,'-------')
+        ''''''''''''''''''''''''
+
+        for formation in candidate_formation:
+            # 对于每一个候选队形，计算最小碰撞时间ttc。
+            x, y, w, h = self.compute_formation_xywh(formation) # 在期望速度为正方向的局部坐标系下,x,y 是局部坐标系的描述
+            formation_box = Box(x, y, w, h, group_state.vx, group_state.vy) # box也是局部坐标系
+            vn, vc = compute_vn_vc(group_state.gx - group_state.px, group_state.gy - group_state.py)  # 以期望速度为正方向
             out_group_boxes = []
             for state in agents_state:
                 x, y, w, h = self.compute_agent_xywh_under_vn_vc(group_state.position, state, vn, vc)
-                box = Box(x, y, w, h, state.vx, state.vy)  # 将Agent变成box
+                box = Box(x, y, w, h, state.vx, state.vy)  # 将Agent变成box，box是在局部坐标系下的描述
                 out_group_boxes.append(box)
+            # 到此位置所有Box都是在局部坐标系下的box
 
             ttc = self.compute_ttc(out_group_boxes, formation_box, vn, vc)
-
             # 计算角度域
-            delt_theta_max = self.compute_theta_max(ttc)  # 角度偏转域
+            delt_theta_max = self.compute_theta_max(ttc)  # 角度偏转域,在我的实现里范围是Pi/3
             orientations = self.compute_orientation_domain(group_state.velocity, delt_theta_max)
             # 计算速度域
             speed_domain = self.compute_speed_domain(ttc, self.v_pref)
+            # print('speed_domain is :',speed_domain)
 
             for angle in orientations:
                 for speed in speed_domain:
@@ -81,23 +90,38 @@ class TvcgGroupControl(Policy):
 
                     new_ttc = self.compute_ttc(out_group_boxes, new_box, new_vn, new_vc)
                     # 计算cost
-                    velocity_deviation_cost = self.k1 * normalize_vector(
-                        (np.array(group_state.goal_position) - np.array(group_state.position)) - np.array(v_candidate))
-                    ttc_cost = self.k2 * ((self.tc_max - new_ttc) / self.tc_max)
+                    v_des = np.array(group_state.goal_position) -np.array(group_state.position)
+                    v_des = v_des / normalize_vector(v_des) # 正则化期望速度 全局坐标系下的速度表示
+
+                    v_cand = np.array(v_candidate) # 候选速度不需要特殊处理，原本就是全局坐标系下的到小为1的速度。
+                    vcan_vdes = v_des - v_cand
+                    velocity_deviation_cost = self.k1 * normalize_vector(vcan_vdes)/2
+                    if new_ttc > self.tc_max :
+                        ttc_cost = 0
+                    else:
+                        ttc_cost = self.k2 * ((self.tc_max - new_ttc) / self.tc_max)
 
                     form_deviation_cost = self.k3 * (
                             np.math.fabs(8 * self.agent_radius - formation.get_width()) / (6 * self.agent_radius))
                     cost_temp = velocity_deviation_cost + ttc_cost + form_deviation_cost
+
+                    # #########################
+                    # print('vd_cost:',velocity_deviation_cost,
+                    #       'ttc_cost:',ttc_cost,
+                    #       'form_deviation_cost:',form_deviation_cost,
+                    #       'cost_tem:',cost_temp)
 
                     if cost_temp < cost:
                         cost = cost_temp
                         formation_selected = formation
                         v_selected = v_candidate
 
+        # print('v_selected is :',v_selected,'formation_selected is :',formation_selected)
         group_action = GroupAction(v_selected, formation_selected)
         return group_action
 
     def compute_formation_box_on_new_v(self, formation, new_vn, new_vc):
+        # 先获得绝对位置坐标
         p1 = np.array(formation.get_ref_point()) + \
              formation.relation[0][0] * np.array(formation.vn) + \
              formation.relation[0][1] * np.array(formation.vc)
@@ -145,14 +169,14 @@ class TvcgGroupControl(Policy):
 
     def compute_orientation_domain(self, velocity, delt_theta):
         orientations = []
-        cur_angle = math.atan2(velocity[0], velocity[1])
+        cur_angle = math.atan2(velocity[1], velocity[0])
         orientations.append(cur_angle)
 
         angle_step = math.pi / 12  # 15度
         tem = []
         for i in range(1, 7):  # 1,2,3,4,5,6
             if delt_theta > angle_step * i:
-                tem.append(angle_step * 1)
+                tem.append(angle_step * i)
             else:
                 tem.append(delt_theta)
                 break
@@ -167,23 +191,25 @@ class TvcgGroupControl(Policy):
 
         if 0 <= ttc < self.tc_min:
             return (self.delta_max - self.delta_mid) * np.exp(-ttc) + self.delta_mid
-        elif self.tc_min <= ttc < self.tc_mid:
+        else:
             return self.delta_mid
-        elif self.tc_mid <= ttc <= self.tc_max:
-            return self.delta_mid * (self.tc_mid - ttc) / (self.tc_max - self.tc_mid) + self.delta_mid
-        elif self.tc_max < ttc:
-            return 0
+        # elif self.tc_min <= ttc < self.tc_mid:
+        #     return self.delta_mid
+        # elif self.tc_mid <= ttc <= self.tc_max:
+        #     return self.delta_mid * (self.tc_mid - ttc) / (self.tc_max - self.tc_mid) + self.delta_mid
+        # elif self.tc_max < ttc:
+        #     return 0
 
     def compute_ttc(self, boxes, box, vn, vc):
         ttc = float('inf')
         for tem_box in boxes:
-            tem_ttc = self.swept_test(tem_box, box, vn, vc)
+            tem_ttc = self.swept_test(tem_box, box, vn, vc) # 前面是单个Agent的box，后面是群组的box
             if tem_ttc < ttc:
                 ttc = tem_ttc
 
         return ttc
 
-    def swept_test(self, tem_box, box, vn, vc):
+    def swept_test(self, tem_box, box, vn, vc):   # box不动， tem_box运动
         vector1 = tem_box.vx - box.vx, tem_box.vy - box.vy
         relative_vx = np.dot(vector1, vn)
         relative_vy = np.dot(vector1, vc)

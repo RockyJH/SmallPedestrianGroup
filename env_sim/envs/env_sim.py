@@ -22,7 +22,8 @@ class EnvSim(gym.Env):
         # 环境信息
         self.time_limit = 30
         self.time_step = 0.25
-        self.out_group_agents_num = 6
+        self.out_group_agents_num = 6 # 小组以外的单个Agent个体
+        # self.other_group = 1   # 当前关注的小组以外的其他小组。----环境中的其他小组
         self.agent_radius = 0.3
         self.square_width = 20
         self.circle_radius = 6

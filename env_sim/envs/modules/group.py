@@ -216,7 +216,8 @@ class Group(object):
         else:
             vn, vc = compute_vn_vc(self.vx, self.vy)
         width = self.get_formation(vn, vc).get_width() / 2
-        return FullState(self.cx, self.cy, self.vx, self.vy, self.gx, self.gy, width, self.v_pref)
+        return FullState(self.cx, self.cy, self.vx, self.vy, width, self.gx, self.gy, self.v_pref)
+        # (px, py, vx, vy, radius, gx, gy, v_pref)
 
     # 获取一个动作,输入group的观察值。 group的动作包含一个速度和一个formation
     def get_action(self, ob):

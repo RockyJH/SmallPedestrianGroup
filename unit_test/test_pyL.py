@@ -1,5 +1,5 @@
-import numpy as np
-for i in range(5):
-    print('第',i,'次')
-    n = np.random.rand(10)
-    print(n)
+from env_sim.envs.modules.utils import normalize_vector
+
+v = (1,1)
+len = normalize_vector(v)
+print(len)

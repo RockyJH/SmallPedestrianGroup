@@ -5,6 +5,7 @@ import os
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 import gym
 from crowd_nav.modules.explorer import Explorer
 from crowd_nav.rgl_group_control import RglGroupControl
@@ -97,8 +98,8 @@ def main(args):
         group.policy = policy
         env.set_group(group)
         seed = input('input a random seed to generate the same random test scene --:')
-        seed = np.random.random(100)
-
+        print('the seed used is : ',seed)
+        ###################################################3
         env.set_seed(seed)
 
         if args.visualize:
@@ -115,7 +116,7 @@ def main(args):
             logging.info('It takes %.2f seconds to finish. Final status is %s',
                          env.global_time, info)
             env.render('video')
-            # env.render('traj')
+            env.render('traj')
     else:
         raise Exception("no such a policy!!!!!!!!!!!!")
 
