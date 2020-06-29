@@ -54,23 +54,18 @@ class RGL(nn.Module):  # 输入robot_state的纬度，和human_state的纬度
 
     def forward(self, state):
         """
-        Embed current state tensor pair (robot_state, human_states) into a latent space
+        Embed current state tensor pair (group_state, human_states) into a latent space
         Each tensor is of shape (batch_size, # of agent, features)
-        :param state:
-        :return:
         """
         group_state, agents_state = state
-
         # compute feature matrix X
         group_state_embedings = self.w_group(group_state)
         agents_state_embedings = self.w_agents(agents_state)
         X = torch.cat([group_state_embedings, agents_state_embedings], dim=1)
-
         # compute matrix A
         if not self.layerwise_graph:
             normalized_A = self.compute_similarity_matrix(X)
             self.A = normalized_A[0, :, :].data.cpu().numpy()
-
         next_H = H = X
         for i in range(self.num_layer):
             if self.layerwise_graph:
@@ -78,7 +73,6 @@ class RGL(nn.Module):  # 输入robot_state的纬度，和human_state的纬度
                 next_H = relu(torch.matmul(torch.matmul(A, H), self.Ws[i]))
             else:
                 next_H = relu(torch.matmul(torch.matmul(normalized_A, H), self.Ws[i]))
-
             if self.skip_connection:
                 next_H += H
             H = next_H

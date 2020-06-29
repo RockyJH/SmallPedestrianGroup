@@ -1,8 +1,9 @@
+from env_sim.envs.modules.state import JointState, FullState
+
 """
 输入的是group的全部状态+所有anent的观测状态，和一个group的action，输出下一个状态
 返回的状态是group的状态和agents的联合状态
 """
-from env_sim.envs.modules.state import JointState, FullState
 
 
 class LinearStatePredictor(object):
@@ -22,7 +23,7 @@ class LinearStatePredictor(object):
         px = group_state.px + vx * self.time_step
         py = group_state.py + vy * self.time_step
         radius = action.formation.get_width() / 2
-        next_state = FullState( px, py, vx, vy, radius, group_state.gx, group_state.gy, group_state.v_pref)
+        next_state = FullState(px, py, vx, vy, radius, group_state.gx, group_state.gy, group_state.v_pref)
         return next_state
 
     def compute_next_agent_states(self, agent_states):

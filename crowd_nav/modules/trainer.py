@@ -1,5 +1,4 @@
 import logging
-import abc
 import copy
 import torch
 import torch.nn as nn
@@ -57,11 +56,9 @@ class MPRLTrainer(object):
             # optimize value estimator
             self.v_optimizer.zero_grad()
             outputs = self.value_estimator((group_states, agents_states))
-
             gamma_bar = pow(self.gamma, self.time_step * self.v_pref)
             target_values = rewards + gamma_bar * self.target_model((next_group_states, next_agents_states))
 
-            # values = values.to(self.device)
             loss = self.criterion(outputs, target_values)
             loss.backward()
             self.v_optimizer.step()
@@ -78,24 +75,24 @@ class MPRLTrainer(object):
         return average_v_loss
 
 
-def pad_batch(batch):
-    """
-    args:
-        batch - list of (tensor, label)
-    return:
-        xs - a tensor of all examples in 'batch' after padding
-        ys - a LongTensor of all labels in batch
-    """
-
-    def sort_states(position):
-        # sort the sequences in the decreasing order of length
-        sequences = sorted([x[position] for x in batch], reverse=True, key=lambda t: t.size()[0])
-        packed_sequences = torch.nn.utils.rnn.pack_sequence(sequences)
-        return torch.nn.utils.rnn.pad_packed_sequence(packed_sequences, batch_first=True)
-
-    states = sort_states(0)
-    values = torch.cat([x[1] for x in batch]).unsqueeze(1)
-    rewards = torch.cat([x[2] for x in batch]).unsqueeze(1)
-    next_states = sort_states(3)
-
-    return states, values, rewards, next_states
+# def pad_batch(batch): #
+#     """
+#     args
+#         batch - list of (tensor, label)
+#     return:
+#         xs - a tensor of all examples in 'batch' after padding
+#         ys - a LongTensor of all labels in batch
+#     """
+#
+#     def sort_states(position):
+#         # sort the sequences in the decreasing order of length
+#         sequences = sorted([x[position] for x in batch], reverse=True, key=lambda t: t.size()[0])
+#         packed_sequences = torch.nn.utils.rnn.pack_sequence(sequences)
+#         return torch.nn.utils.rnn.pad_packed_sequence(packed_sequences, batch_first=True)
+#
+#     states = sort_states(0)
+#     values = torch.cat([x[1] for x in batch]).unsqueeze(1)
+#     rewards = torch.cat([x[2] for x in batch]).unsqueeze(1)
+#     next_states = sort_states(3)
+#
+#     return states, values, rewards, next_states

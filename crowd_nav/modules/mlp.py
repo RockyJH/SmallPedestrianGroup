@@ -1,7 +1,7 @@
 import torch.nn as nn
 
 '''
-这个脚本包含了一个方法用于生成多层感知机,
+包含了一个方法用于生成多层感知机mlp,
 input_dim : 接受输入的维度；
 mlp_dims  : 是一个list，类似于[150, 100, 100, 50]
 last_relu : 默认最后一层不使用激活函数

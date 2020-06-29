@@ -2,7 +2,7 @@ import torch.nn as nn
 from crowd_nav.modules.mlp import mlp
 
 '''
-价值估计网络 传入的参数是 graph_model
+价值估计 传入的参数是 graph_model
 由 graph_model 后面加一个多呈感知机构成价值网络
 输入纬度是 X矩阵的纬度；mlp中每层的输入纬度写在配置文件
 forward 函数中取graph_model中的代表robot状态的向量传入价值网络，返回一个价值

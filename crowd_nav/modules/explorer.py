@@ -3,9 +3,6 @@ import torch
 from tqdm import tqdm  # Tqdm 是一个快速，可扩展的Python进度条
 from env_sim.envs.modules.info import *
 
-
-# 探索n步
-
 class Explorer(object):
     def __init__(self, env, group, device, writer, memory=None, gamma=None, target_policy=None):
         self.env = env
@@ -70,7 +67,6 @@ class Explorer(object):
             # 向记忆里存的时候是给一个回合的信息，但在update_memory的时候是将这些记忆分解成一个一的动作存到记忆里
             if update_memory:
                 if isinstance(self.info, ReachGoal) or isinstance(self.info, Collision) or isinstance(self.info,Timeout):
-                    # only add positive(success) or negative(collision) experience in experience set
                     self.update_memory(states, actions, rewards, imitation_learning)
 
             cumulative_rewards.append(sum([pow(self.gamma, t * self.group.time_step * self.group.v_pref)

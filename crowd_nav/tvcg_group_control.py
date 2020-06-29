@@ -6,7 +6,6 @@ from env_sim.envs.modules.utils import normalize_vector, compute_vn_vc
 from env_sim.envs.policy.policy import Policy
 from crowd_nav.modules.box import Box
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 class TvcgGroupControl(Policy):
@@ -24,8 +23,6 @@ class TvcgGroupControl(Policy):
         self.k1 = 1
         self.k2 = 1
         self.k3 = 0.5
-
-        self.predict_count = 0
 
     def set_phase(self, phase):
         self.phase = phase
@@ -46,12 +43,6 @@ class TvcgGroupControl(Policy):
         '''step2 获得每个队形的个人空间，个人空间都是在以期望速度方向为正方向的局部坐标系里建立。
         然后做碰撞扫描，获得最小碰撞时间，进而确定速度方向。和大小
         '''
-
-        ''''''''''''''''''
-        self.predict_count += 1
-        # print('-------',self.predict_count,'-------')
-        ''''''''''''''''''''''''
-
         for formation in candidate_formation:
             # 对于每一个候选队形，计算最小碰撞时间ttc。
             x, y, w, h = self.compute_formation_xywh(formation) # 在期望速度为正方向的局部坐标系下,x,y 是局部坐标系的描述
@@ -62,7 +53,7 @@ class TvcgGroupControl(Policy):
                 x, y, w, h = self.compute_agent_xywh_under_vn_vc(group_state.position, state, vn, vc)
                 box = Box(x, y, w, h, state.vx, state.vy)  # 将Agent变成box，box是在局部坐标系下的描述
                 out_group_boxes.append(box)
-            # 到此位置所有Box都是在局部坐标系下的box
+            # 到此，所有Box都是在局部坐标系下的box
 
             ttc = self.compute_ttc(out_group_boxes, formation_box, vn, vc)
             # 计算角度域
@@ -70,16 +61,17 @@ class TvcgGroupControl(Policy):
             orientations = self.compute_orientation_domain(group_state.velocity, delt_theta_max)
             # 计算速度域
             speed_domain = self.compute_speed_domain(ttc, self.v_pref)
-            # print('speed_domain is :',speed_domain)
+
+            # print(formation.relation) 到这里formation还是正常
 
             for angle in orientations:
                 for speed in speed_domain:
+
                     v_candidate = (speed * math.cos(angle), speed * math.sin(angle))
                     new_vn, new_vc = compute_vn_vc(v_candidate[0], v_candidate[1])
-
                     # 新速度下的 box
-                    formation = self.compute_formation_box_on_new_v(formation, new_vn, new_vc)
-                    x, y, w, h = self.compute_formation_xywh(formation)
+                    formation_tem = self.compute_new_formation_on_new_v(formation, new_vn, new_vc)
+                    x, y, w, h = self.compute_formation_xywh(formation_tem)
                     new_box = Box(x, y, w, h, v_candidate[0], v_candidate[1])
 
                     out_group_boxes = []
@@ -102,14 +94,8 @@ class TvcgGroupControl(Policy):
                         ttc_cost = self.k2 * ((self.tc_max - new_ttc) / self.tc_max)
 
                     form_deviation_cost = self.k3 * (
-                            np.math.fabs(8 * self.agent_radius - formation.get_width()) / (6 * self.agent_radius))
+                            abs(8 * self.agent_radius - formation.get_width()) / (6 * self.agent_radius))
                     cost_temp = velocity_deviation_cost + ttc_cost + form_deviation_cost
-
-                    # #########################
-                    # print('vd_cost:',velocity_deviation_cost,
-                    #       'ttc_cost:',ttc_cost,
-                    #       'form_deviation_cost:',form_deviation_cost,
-                    #       'cost_tem:',cost_temp)
 
                     if cost_temp < cost:
                         cost = cost_temp
@@ -120,7 +106,7 @@ class TvcgGroupControl(Policy):
         group_action = GroupAction(v_selected, formation_selected)
         return group_action
 
-    def compute_formation_box_on_new_v(self, formation, new_vn, new_vc):
+    def compute_new_formation_on_new_v(self, formation, new_vn, new_vc):
         # 先获得绝对位置坐标
         p1 = np.array(formation.get_ref_point()) + \
              formation.relation[0][0] * np.array(formation.vn) + \
@@ -193,6 +179,7 @@ class TvcgGroupControl(Policy):
             return (self.delta_max - self.delta_mid) * np.exp(-ttc) + self.delta_mid
         else:
             return self.delta_mid
+        # 后面太小了不要了
         # elif self.tc_min <= ttc < self.tc_mid:
         #     return self.delta_mid
         # elif self.tc_mid <= ttc <= self.tc_max:
@@ -235,9 +222,6 @@ class TvcgGroupControl(Policy):
         else:
             y_entry_dis = (box.y + box.h) - tem_box.y
             y_exit_dis = box.y - (tem_box.y + tem_box.h)
-
-        # find time of collision and time of leaving for each axis
-        # ( if statement is to prevent divide by zero)
 
         if relative_vx == 0:
             x_entry_time = -float('inf')  # 进入时间 负无穷

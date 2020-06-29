@@ -1,5 +1,5 @@
 from crowd_nav.configs.icra_benchmark.config import BaseEnvConfig, BasePolicyConfig, BaseTrainConfig, Config
-# 这是我训练中实际用到的配置文件
+# 训练中实际用到的配置文件
 
 class EnvConfig(BaseEnvConfig):
     def __init__(self, debug=False):

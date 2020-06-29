@@ -23,7 +23,6 @@ class EnvSim(gym.Env):
         self.time_limit = 30
         self.time_step = 0.25
         self.out_group_agents_num = 6 # 小组以外的单个Agent个体
-        # self.other_group = 1   # 当前关注的小组以外的其他小组。----环境中的其他小组
         self.agent_radius = 0.3
         self.square_width = 20
         self.circle_radius = 6
@@ -45,6 +44,7 @@ class EnvSim(gym.Env):
         self.global_time = None
         self.states = []
         self.rewards = []
+        self.seed = None  # 记录seed用于生成文件名
 
         # 画轨迹
         self.want_truth = []
@@ -82,6 +82,7 @@ class EnvSim(gym.Env):
         logging.info('[env_sim:] square width: {}, circle radius: {}'.format(self.square_width, self.circle_radius))
 
     def set_seed(self, a):
+        self.seed = a
         np.random.seed(int(a))
 
     def set_group(self, group):
@@ -167,7 +168,7 @@ class EnvSim(gym.Env):
 
             collision = False
             # 检测每个group_member和组外agent是否碰撞，组外agent之间互碰不管
-            # 测试rvo的时候，不进行彭汉族昂检测，否则人数达到6的时候碰撞率已经高到不能测试
+            # 测试rvo的时候，不进行碰撞检测，否则人数达到6的时候碰撞率已经高到不能测试
             # for j, member in enumerate(self.group_members):
             #     member_action = all_agents_actions[j]
             #     for i, agent in enumerate(self.out_group_agents):
@@ -458,75 +459,11 @@ class EnvSim(gym.Env):
                             agent = plt.Circle(agent_position[k][n], self.agent_radius, fill=False,
                                                color='black' if n < 3 else human_colors[n - 3])
                             ax.add_artist(agent)
-                    # # add time annotation
-                    # global_time = k * self.time_step
-                    # if global_time % 4 == 0 or k == len(self.states) - 1: # 每4秒
-                    #     times = [plt.text(agent_position[k][i][0] - x_offset, agent_position[k][i][1] - y_offset,
-                    #                       '{:.1f}'.format(global_time),
-                    #                       color='black', fontsize=14) for i in
-                    #              range(len(self.out_group_agents + self.group_members))]
-                    #     for time in times:
-                    #         ax.add_artist(time)
                 robot = plt.Circle([0, 0], self.agent_radius, fill=False,
                                    color='black')
                 goal = mlines.Line2D([0], [0], color='black', marker='*', linestyle='None', markersize=16)
                 plt.legend([robot, goal], ['Robot', 'Goal'], fontsize=16)
                 plt.show()
-
-            # fig, ax = plt.subplots(figsize=(8, 8))
-            # ax.tick_params(labelsize=16)
-            # ax.set_xlim(-10, 10)
-            # ax.set_ylim(-10, 10)
-            # ax.set_xlabel('x(m)', fontsize=16)
-            # ax.set_ylabel('y(m)', fontsize=16)
-            #
-            # # add human start positions and goals
-            # human_colors = [cmap(i) for i in range(len(self.out_group_agents))]
-            # for i in range(len(self.out_group_agents)):
-            #     human = self.out_group_agents[i]
-            #     human_goal = mlines.Line2D([human.get_goal()[0]], [human.get_goal()[1]],
-            #                                color=human_colors[i],
-            #                                marker='*', linestyle='None', markersize=15)
-            #     ax.add_artist(human_goal)
-            #     human_start = mlines.Line2D([human.get_start_position()[0]], [human.get_start_position()[1]],
-            #                                 color=human_colors[i],
-            #                                 marker='o', linestyle='None', markersize=15)
-            #     ax.add_artist(human_start)
-            #
-            # agent_position = [
-            #     [self.states[i][j].position for j in range(len(self.group_members + self.out_group_agents))]
-            #     for i in range(len(self.states))]
-            #
-            # for k in range(len(self.states)):  # k是状态的索引
-            #     if k % 4 == 0 or k == len(self.states) - 1:  # 每4个状态
-            #         if k % 16 == 0:
-            #             for n, agent in enumerate(self.out_group_agents + self.out_group_agents):
-            #                 agent = plt.Circle(agent_position[k][n], self.agent_radius, fill=True,
-            #                                    color='black' if n < 3 else human_colors[n - 3])
-            #                 ax.add_artist(agent)
-            #         else:
-            #             for n, agent in enumerate(self.out_group_agents + self.out_group_agents):
-            #                 agent = plt.Circle(agent_position[k][n], self.agent_radius, fill=False,
-            #                                    color='black' if n < 3 else human_colors[n - 3])
-            #                 ax.add_artist(agent)
-            #     # # add time annotation
-            #     # global_time = k * self.time_step
-            #     # if global_time % 4 == 0 or k == len(self.states) - 1: # 每4秒
-            #     #     times = [plt.text(agent_position[k][i][0] - x_offset, agent_position[k][i][1] - y_offset,
-            #     #                       '{:.1f}'.format(global_time),
-            #     #                       color='black', fontsize=14) for i in
-            #     #              range(len(self.out_group_agents + self.group_members))]
-            #     #     for time in times:
-            #     #         ax.add_artist(time)
-            #     if k != 0:
-            #         human_directions = [plt.Line2D((agent_position[k - 1][i][0], agent_position[k][i][0]),
-            #                                        (agent_position[k - 1][i][1], agent_position[k][i][1]),
-            #                                        color='black' if i < 3 else human_colors[i - 3], ls='solid')
-            #                             for i in range(len(self.group_members + self.out_group_agents))]
-            #         for d in human_directions:
-            #             ax.add_artist(d)
-            # # plt.legend([robot], ['Robot'], fontsize=16)
-            # plt.show()
 
         elif mode == 'video':
             fig, ax = plt.subplots(figsize=(7, 7))  # 面板大小7，7 fig 表示一窗口 ax 是一个框
@@ -536,19 +473,8 @@ class EnvSim(gym.Env):
             ax.set_xlabel('x(m)', fontsize=14)
             ax.set_ylabel('y(m)', fontsize=14)
             show_human_start_goal = True
-            ########画静态的轨迹##############
-            # for i, want_truth in enumerate(self.want_truth):
-            #     if i % 5 == 0 or i == len(self.want_truth) - 1:
-            #         # want_truth === want1,want2,want3,truth1,truth2,truth3
-            #         for j in range(3):
-            #             want = plt.Circle(want_truth[j], 0.3, fill=True, color=cmap(4))
-            #             truth = plt.Circle(want_truth[j + 3], 0.1, fill=False, color=cmap(7))
-            #             # number = plt.text(want_truth[j+3][0]-0.25, want_truth[j+3][1]-0.2, str(i), color='green')
-            #             # ax.add_artist(number)
-            #             ax.add_artist(want)
-            #             ax.add_artist(truth)
 
-            # 用于生成图例
+            # 图例
             circle1 = plt.Circle((1, 1), 0.3, fill=True, color=cmap(4))
             circle2 = plt.Circle((1, 1), 0.3, fill=False, color=cmap(7))
 
@@ -602,7 +528,7 @@ class EnvSim(gym.Env):
                 if display_numbers:
                     ax.add_artist(numbers[i])
 
-            # 显示时间和步骤
+            # 时间和步骤
             time = plt.text(0.4, 0.9, 'Time: {}'.format(0), fontsize=16, transform=ax.transAxes)
             ax.add_artist(time)
             step = plt.text(0.1, 0.9, 'Step: {}'.format(0), fontsize=16, transform=ax.transAxes)
@@ -661,15 +587,11 @@ class EnvSim(gym.Env):
                 time.set_text('Time: {:.2f}'.format(frame_num * self.time_step))
                 step.set_text('Step: {:}'.format(frame_num))
 
-                ########画静态的轨迹##############
 
             def plot_value_heatmap():
                 if self.robot.kinematics != 'holonomic':
                     print('Kinematics is not holonomic')
                     return
-                # for agent in [self.states[global_step][0]] + self.states[global_step][1]:
-                #     print(('{:.4f}, ' * 6 + '{:.4f}').format(agent.px, agent.py, agent.gx, agent.gy,
-                #                                              agent.vx, agent.vy, agent.theta))
 
                 # when any key is pressed draw the action value plot
                 fig, axis = plt.subplots()
@@ -697,9 +619,6 @@ class EnvSim(gym.Env):
                 for i in range(h):
                     print('{:<3}'.format(i - 1) + ' '.join(
                         ['{:.3f}'.format(self.As[global_step][i][j]) for j in range(w)]))
-                # with np.printoptions(precision=3, suppress=True):
-                #     print('A is: ')
-                #     print(self.As[global_step])
 
             def print_feat():
                 with np.printoptions(precision=3, suppress=True):
@@ -731,7 +650,8 @@ class EnvSim(gym.Env):
                 # save output file as gif if imagemagic is installed
                 # anim.save(output_file, writer='imagemagic', fps=12)
             else:
-                anim.save("./test.gif", writer='imagemagic', fps=12)
+                name = './'+str(self.out_group_agents_num)+'p_'+self.group.policy.name+'_seed'+self.seed+'.gif'
+                anim.save(name, writer='imagemagic', fps=12)
                 plt.show()
 
         else:

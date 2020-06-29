@@ -62,10 +62,13 @@ def main(args):
 
     # step6- 配置控制策略
     policy = RglGroupControl()  # 空白的网络
-    model_weights = 'data/best_val.pth'
-    logging.info('load model from:{}'.format(model_weights))
+    ##################attention ! 第二次训练载入权重值。##############
+    project_path = os.getcwd()  # 项目路径
+    data_dir = 'data-3/best_val.pth'
+    model_weights = str(os.path.join(project_path, data_dir))
     policy.load_model(model_weights)
-
+    logging.info('load model_weights file form:%s',model_weights)
+    #########################
     policy.set_device(device)
 
     # step7-环境

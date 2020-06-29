@@ -2,13 +2,53 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="459ead2e-bf8e-4502-95d3-3675cd22b607" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/log_analize.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/best_val.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/events.out.tfevents.1589731399.TQR-ubuntu" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/output.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/rl_model_0.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/rl_model_1.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/rl_model_2.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/rl_model_3.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/rl_model_4.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/rl_model_5.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/rl_model_6.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/rl_model_7.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/rl_model_8.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data-3/rl_model_9.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/best_val.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/events.out.tfevents.1589370445.TQR-ubuntu" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/output.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/readme.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/rl_model_0.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/rl_model_1.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/rl_model_2.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/rl_model_3.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/rl_model_4.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/rl_model_5.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/rl_model_6.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/rl_model_7.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/rl_model_8.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/data/rl_model_9.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/modules/explorer.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/explorer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/modules/graph_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/graph_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/modules/memory.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/memory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/modules/mlp.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/mlp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/modules/state_predictor.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/state_predictor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/modules/trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/trainer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/modules/value_estimator.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/modules/value_estimator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/rgl_group_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/rgl_group_control.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crowd_nav/rvo_group_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/rvo_group_control.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crowd_nav/tvcg_group_control.py" beforeDir="false" afterPath="$PROJECT_DIR$/crowd_nav/tvcg_group_control.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/env_sim/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/env_sim/config_file/mp_separate.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/config_file/mp_separate.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/env_sim/envs/env_sim.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/env_sim.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/env_sim/envs/modules/group.py" beforeDir="false" afterPath="$PROJECT_DIR$/env_sim/envs/modules/group.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unit_test/test_log_analysis.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/unit_test/test_pyL.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_test/test_pyL.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/unit_test/test_velocity_angle.py" beforeDir="false" afterPath="$PROJECT_DIR$/unit_test/test_velocity_angle.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,7 +104,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$USER_HOME$/test-lijunhua/slicesim" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/unit_test" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="PyConsoleConfigurable.Python Console" />
   </component>
@@ -78,18 +118,19 @@
     </option>
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/unit_test" />
+      <recent name="$PROJECT_DIR$/test_train" />
+      <recent name="$PROJECT_DIR$/crowd_nav" />
+      <recent name="$PROJECT_DIR$/env_sim/envs" />
+      <recent name="$PROJECT_DIR$/env_sim" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/test_train" />
       <recent name="$PROJECT_DIR$/env_sim/envs" />
       <recent name="$PROJECT_DIR$/env_sim" />
       <recent name="$PROJECT_DIR$/train_test" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/test_train" />
-      <recent name="$PROJECT_DIR$/crowd_nav" />
-      <recent name="$PROJECT_DIR$/env_sim/envs" />
-      <recent name="$PROJECT_DIR$/env_sim" />
     </key>
   </component>
   <component name="RunManager" selected="Python.test">
@@ -107,6 +148,50 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="log_analize" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SmallPedestrianGroup" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/log_analize.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="log_analysis" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SmallPedestrianGroup" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/log_analysis.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -137,28 +222,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_animation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="SmallPedestrianGroup" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/unit_test/test_animation.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="test_pyL" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SmallPedestrianGroup" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -181,7 +244,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test_velocity_angle" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="train" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SmallPedestrianGroup" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -189,34 +252,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/unit_test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/unit_test/test_velocity_angle.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="tvcg_group_control" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="SmallPedestrianGroup" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/crowd_nav" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/crowd_nav/tvcg_group_control.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -226,19 +267,19 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.log_analysis" />
       <item itemvalue="Python.test" />
       <item itemvalue="Python.test_pyL" />
-      <item itemvalue="Python.test_animation" />
-      <item itemvalue="Python.test_velocity_angle" />
-      <item itemvalue="Python.tvcg_group_control" />
+      <item itemvalue="Python.train" />
+      <item itemvalue="Python.log_analize" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.test" />
         <item itemvalue="Python.test_pyL" />
-        <item itemvalue="Python.test_velocity_angle" />
-        <item itemvalue="Python.tvcg_group_control" />
-        <item itemvalue="Python.test_animation" />
+        <item itemvalue="Python.log_analize" />
+        <item itemvalue="Python.log_analysis" />
+        <item itemvalue="Python.train" />
       </list>
     </recent_temporary>
   </component>
@@ -306,7 +347,12 @@
       <workItem from="1592381748416" duration="1499000" />
       <workItem from="1592595219673" duration="9308000" />
       <workItem from="1592878419196" duration="6628000" />
-      <workItem from="1592963195136" duration="1642000" />
+      <workItem from="1592963195136" duration="6478000" />
+      <workItem from="1593052979904" duration="4537000" />
+      <workItem from="1593075371542" duration="3072000" />
+      <workItem from="1593080341968" duration="132000" />
+      <workItem from="1593080491349" duration="49936000" />
+      <workItem from="1593412114902" duration="4663000" />
     </task>
     <task id="LOCAL-00001" summary="Happy Labor Day！">
       <created>1588322039116</created>
@@ -357,7 +403,14 @@
       <option name="project" value="LOCAL" />
       <updated>1591624459683</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="june24-library">
+      <created>1592964878343</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1592964878343</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -393,7 +446,8 @@
     <MESSAGE value="modify the comments" />
     <MESSAGE value="2th-train" />
     <MESSAGE value="Jun-8" />
-    <option name="LAST_COMMIT_MESSAGE" value="Jun-8" />
+    <MESSAGE value="june24-library" />
+    <option name="LAST_COMMIT_MESSAGE" value="june24-library" />
   </component>
   <component name="WindowStateProjectService">
     <state x="455" y="108" width="1000" height="841" key="#Notifications" timestamp="1588909726170">
@@ -416,30 +470,30 @@
       <screen x="0" y="34" width="1920" height="989" />
     </state>
     <state x="638" y="338" width="634" height="381" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.34.1920.989@0.34.1920.989" timestamp="1588323302646" />
-    <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2" timestamp="1591624458261">
+    <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2" timestamp="1592964877285">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2/0.34.1920.989@0.34.1920.989" timestamp="1591624458261" />
+    <state x="418" y="40" width="1074" height="976" key="CommitChangelistDialog2/0.34.1920.989@0.34.1920.989" timestamp="1592964877285" />
     <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl" timestamp="1592035154503">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
     <state x="690" y="228" width="530" height="600" key="FileChooserDialogImpl/0.34.1920.989@0.34.1920.989" timestamp="1592035154503" />
-    <state width="1856" height="217" key="GridCell.Tab.0.bottom" timestamp="1592922814091">
+    <state width="1856" height="189" key="GridCell.Tab.0.bottom" timestamp="1593416682119">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="217" key="GridCell.Tab.0.bottom/0.34.1920.989@0.34.1920.989" timestamp="1592922814091" />
-    <state width="1856" height="217" key="GridCell.Tab.0.center" timestamp="1592922814090">
+    <state width="1856" height="189" key="GridCell.Tab.0.bottom/0.34.1920.989@0.34.1920.989" timestamp="1593416682119" />
+    <state width="1856" height="189" key="GridCell.Tab.0.center" timestamp="1593416682118">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="217" key="GridCell.Tab.0.center/0.34.1920.989@0.34.1920.989" timestamp="1592922814090" />
-    <state width="1856" height="217" key="GridCell.Tab.0.left" timestamp="1592922814090">
+    <state width="1856" height="189" key="GridCell.Tab.0.center/0.34.1920.989@0.34.1920.989" timestamp="1593416682118" />
+    <state width="1856" height="189" key="GridCell.Tab.0.left" timestamp="1593416682118">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="217" key="GridCell.Tab.0.left/0.34.1920.989@0.34.1920.989" timestamp="1592922814090" />
-    <state width="1856" height="217" key="GridCell.Tab.0.right" timestamp="1592922814091">
+    <state width="1856" height="189" key="GridCell.Tab.0.left/0.34.1920.989@0.34.1920.989" timestamp="1593416682118" />
+    <state width="1856" height="189" key="GridCell.Tab.0.right" timestamp="1593416682119">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state width="1856" height="217" key="GridCell.Tab.0.right/0.34.1920.989@0.34.1920.989" timestamp="1592922814091" />
+    <state width="1856" height="189" key="GridCell.Tab.0.right/0.34.1920.989@0.34.1920.989" timestamp="1593416682119" />
     <state width="1856" height="320" key="GridCell.Tab.1.bottom" timestamp="1590947829648">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
@@ -468,10 +522,10 @@
       <screen x="0" y="34" width="1920" height="989" />
     </state>
     <state x="490" y="116" width="1284" height="907" key="SettingsEditor/0.34.1920.989@0.34.1920.989" timestamp="1589478989781" />
-    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2" timestamp="1591624469236">
+    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2" timestamp="1592964900073">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
-    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2/0.34.1920.989@0.34.1920.989" timestamp="1591624469236" />
+    <state x="455" y="200" width="1000" height="657" key="Vcs.Push.Dialog.v2/0.34.1920.989@0.34.1920.989" timestamp="1592964900073" />
     <state x="662" y="202" width="586" height="652" key="VcsDiffUtil.ChangesDialog" timestamp="1588322131510">
       <screen x="0" y="34" width="1920" height="989" />
     </state>
@@ -492,23 +546,26 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$env_sim.coverage" NAME="env_sim Coverage Results" MODIFIED="1589286050918" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/env_sim/envs" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_render__1_.coverage" NAME="test_render (1) Coverage Results" MODIFIED="1589862529802" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$log_analize.coverage" NAME="log_analize Coverage Results" MODIFIED="1593412318003" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_anim.coverage" NAME="test_anim Coverage Results" MODIFIED="1589877608373" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test2.coverage" NAME="rugular_test Coverage Results" MODIFIED="1588868492461" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test_train" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$rugular_test__1_.coverage" NAME="rugular_test (1) Coverage Results" MODIFIED="1589862430934" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_velocity_angle.coverage" NAME="test_velocity_angle Coverage Results" MODIFIED="1592148071881" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_render.coverage" NAME="test_render Coverage Results" MODIFIED="1591585627893" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_log_analysis.coverage" NAME="log_analysis Coverage Results" MODIFIED="1593411969503" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
     <SUITE FILE_PATH="coverage/PedestrianGroup1_0$test.coverage" NAME="test Coverage Results" MODIFIED="1582378458989" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_plot.coverage" NAME="test_plot Coverage Results" MODIFIED="1589861549697" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test_train" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_animation.coverage" NAME="test_animation Coverage Results" MODIFIED="1591585658492" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_os_path.coverage" NAME="test_os_path Coverage Results" MODIFIED="1589874223156" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
-    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$train.coverage" NAME="train Coverage Results" MODIFIED="1589731396148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crowd_nav" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$train.coverage" NAME="train Coverage Results" MODIFIED="1593300465704" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test1.coverage" NAME="test1 Coverage Results" MODIFIED="1588686476226" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test_train" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$rugular_test.coverage" NAME="rugular_test Coverage Results" MODIFIED="1589712602767" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/test_train" />
-    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_pyL.coverage" NAME="test_pyL Coverage Results" MODIFIED="1592150501055" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test_pyL.coverage" NAME="test_pyL Coverage Results" MODIFIED="1593416419953" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$log_analysis.coverage" NAME="log_analysis Coverage Results" MODIFIED="1593412186934" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/unit_test" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$orca.coverage" NAME="orca Coverage Results" MODIFIED="1588697344788" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/env_sim/envs/policy" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$formation.coverage" NAME="formation Coverage Results" MODIFIED="1588864270291" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/env_sim/envs/modules" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$tvcg_group_control.coverage" NAME="tvcg_group_control Coverage Results" MODIFIED="1592116903837" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/crowd_nav" />
     <SUITE FILE_PATH="coverage/SmallPedestrianGroup$utils.coverage" NAME="utils Coverage Results" MODIFIED="1588651878211" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/env_sim/envs/modules" />
-    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test.coverage" NAME="test Coverage Results" MODIFIED="1592905208220" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/SmallPedestrianGroup$test.coverage" NAME="test Coverage Results" MODIFIED="1593416682104" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

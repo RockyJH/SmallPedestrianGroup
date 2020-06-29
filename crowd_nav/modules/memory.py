@@ -2,7 +2,6 @@ from torch.utils.data import Dataset
 
 
 # 记忆库
-
 class ReplayMemory(Dataset):
     def __init__(self, capacity):
         self.capacity = capacity
