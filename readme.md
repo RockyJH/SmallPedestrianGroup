@@ -1,4 +1,6 @@
 # 项目说明
+安装环境 pip/pip3 install -r requirements.txt
+-----
 从test.py 和 train.py开始.
 test.py调用其他模块开始测试。共三种方法:
 1. rgl_group_control.py
